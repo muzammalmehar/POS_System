@@ -1,0 +1,778 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arslan Communication & Karyana Store User Manual</title>
+<style>
+@page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    color: #1f2937;
+    background: #eef2f7;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 12pt;
+    line-height: 1.55;
+}
+
+.sheet {
+    width: 210mm;
+    margin: 0 auto;
+    background: #ffffff;
+}
+
+.hero {
+    padding: 28px 34px 24px 34px;
+    background: linear-gradient(135deg, #12346b 0%, #1f7a8c 100%);
+    color: #ffffff;
+}
+
+.eyebrow {
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 10pt;
+    opacity: 0.9;
+    margin-bottom: 10px;
+}
+
+.hero h1 {
+    margin: 0;
+    font-size: 28pt;
+    line-height: 1.1;
+}
+
+.hero p {
+    margin: 12px 0 0 0;
+    max-width: 640px;
+    font-size: 12pt;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.content {
+    padding: 26px 34px 32px 34px;
+}
+
+h2 {
+    margin: 28px 0 10px 0;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #d9e4f2;
+    color: #12346b;
+    font-size: 17pt;
+    page-break-after: avoid;
+}
+
+h3 {
+    margin: 16px 0 8px 0;
+    color: #0f5f56;
+    font-size: 12.5pt;
+    page-break-after: avoid;
+}
+
+p {
+    margin: 0 0 10px 0;
+}
+
+ul, ol {
+    margin: 0 0 12px 20px;
+    padding: 0;
+}
+
+li {
+    margin: 0 0 6px 0;
+}
+
+code {
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: #eef4ff;
+    color: #12346b;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 10.5pt;
+}
+
+blockquote, .note {
+    margin: 14px 0;
+    padding: 12px 14px;
+    border-left: 4px solid #1f7a8c;
+    background: #f4fbfb;
+    border-radius: 8px;
+}
+
+.footer {
+    margin-top: 28px;
+    padding-top: 14px;
+    border-top: 1px solid #d9e4f2;
+    color: #6b7280;
+    font-size: 10.5pt;
+}
+
+.page-break {
+    page-break-before: always;
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+<section class="hero">
+<div class="eyebrow">Operations Guide</div>
+<h1>Arslan Communication & Karyana Store User Manual</h1>
+<p>Complete operating guide for cashier, owner, and manager workflows at Arslan Communication & Karyana Store including sales, stock, credit, expiry, printing, vendors, services, and accounts.</p>
+</section>
+<main class="content">
+<h2>1. Introduction</h2>
+<p><code>Arslan Communication &amp; Karyana Store</code> uses this Windows Forms based point-of-sale and shop management system for:</p>
+<ul>
+<li>Grocery sales</li>
+<li>Customer credit tracking</li>
+<li>Vendor purchase and payable tracking</li>
+<li>Stock and product management</li>
+<li>Expiry management</li>
+<li>Service transactions such as bill payment, mobile balance, packages, and cash withdrawal</li>
+<li>Accounts, profit and loss, and printable records</li>
+</ul>
+<p>This manual is written for daily shop use and covers both normal and edge-case workflows.</p>
+<h2>2. System Modules</h2>
+<p>The main dashboard gives access to these modules:</p>
+<ul>
+<li>Login</li>
+<li>Dashboard</li>
+<li>Sales Screen</li>
+<li>Stock Management</li>
+<li>Product Management</li>
+<li>Purchase Entry</li>
+<li>Vendor Management</li>
+<li>Vendor Payments</li>
+<li>Expense Management</li>
+<li>Expiry Management</li>
+<li>Service Center</li>
+<li>Customer Management</li>
+<li>Accounts and P&amp;L</li>
+<li>Recent Sales</li>
+</ul>
+<h2>3. Login</h2>
+<h3>Purpose</h3>
+<p>Login controls access to the system and opens the main dashboard for the current user.</p>
+<h3>Features</h3>
+<ul>
+<li>Username and password login</li>
+<li>Remember Me option</li>
+<li>Saved login details for faster future login</li>
+</ul>
+<h3>How to use</h3>
+<ol>
+<li>Open the application.</li>
+<li>Enter username.</li>
+<li>Enter password.</li>
+<li>If you want the system to remember your login, tick <code>Remember me</code>.</li>
+<li>Click <code>Sign In</code>.</li>
+</ol>
+<h3>Notes</h3>
+<ul>
+<li>If <code>Remember me</code> is enabled, the system saves login details locally for that Windows user.</li>
+<li>If login fails, saved credentials are cleared to prevent wrong repeated login.</li>
+</ul>
+<h2>4. Dashboard</h2>
+<h3>Purpose</h3>
+<p>The dashboard is the home screen of the software and gives quick business information.</p>
+<h3>Typical information shown</h3>
+<ul>
+<li>Today grocery sales</li>
+<li>Today grocery profit</li>
+<li>Today credit sales</li>
+<li>Today cash sales</li>
+<li>Today service sales</li>
+<li>Today service profit</li>
+<li>Today expenses</li>
+<li>Today orders</li>
+<li>Low stock alerts</li>
+<li>Recent sales list</li>
+</ul>
+<h3>What to check daily</h3>
+<ul>
+<li>Whether credit sales are growing too much</li>
+<li>Which items are low in stock</li>
+<li>Whether there are expiry alerts</li>
+<li>Whether expenses are high compared to daily profit</li>
+</ul>
+<h2>5. Product Management</h2>
+<h3>Purpose</h3>
+<p>Used to create and update products.</p>
+<h3>Available fields</h3>
+<ul>
+<li>Product Code</li>
+<li>Barcode</li>
+<li>Product Name</li>
+<li>Category</li>
+<li>Brand</li>
+<li>Base Unit</li>
+<li>Preferred Vendor</li>
+<li>Purchase Price</li>
+<li>Sale Price</li>
+<li>Reorder Level</li>
+<li>Track Stock</li>
+<li>Track Expiry</li>
+<li>Expiry Date</li>
+<li>Product Image</li>
+<li>Active Status</li>
+</ul>
+<h3>Important expiry rule</h3>
+<p>Product-level expiry date is a default/reference expiry setting.</p>
+<p>Actual stock expiry for a purchased batch should still be added during purchase entry.</p>
+<h3>How to add a new product</h3>
+<ol>
+<li>Open <code>Product Management</code>.</li>
+<li>Click <code>New Product</code>.</li>
+<li>Enter product name.</li>
+<li>Fill barcode if available.</li>
+<li>Select category, brand, and unit.</li>
+<li>Select preferred vendor if known.</li>
+<li>Enter purchase price and sale price.</li>
+<li>Enter reorder level.</li>
+<li>Keep <code>Track stock</code> enabled for normal inventory items.</li>
+<li>Enable <code>Track expiry</code> if the item expires.</li>
+<li>If expiry applies, select the product expiry date.</li>
+<li>Add image by:</li>
+</ol>
+<ul>
+<li><code>Choose</code> from local system, or</li>
+<li><code>Capture</code> from camera</li>
+</ul>
+<ol>
+<li>Click <code>Save Product</code>.</li>
+</ol>
+<h3>Editing a product</h3>
+<ol>
+<li>Search the product in the left grid.</li>
+<li>Select it.</li>
+<li>Update fields.</li>
+<li>Save again.</li>
+</ol>
+<h3>Best practices</h3>
+<ul>
+<li>Keep sale price and purchase price updated.</li>
+<li>Assign the correct vendor for purchase and expiry return flow.</li>
+<li>Enable expiry tracking only for products where expiry really matters.</li>
+</ul>
+<h2>6. Stock Management</h2>
+<h3>Purpose</h3>
+<p>Used to review stock levels and perform stock adjustments.</p>
+<h3>Typical actions</h3>
+<ul>
+<li>Search product stock</li>
+<li>View current stock</li>
+<li>View stock value</li>
+<li>View stock movement history</li>
+<li>Post adjustments such as:</li>
+<li>Opening stock</li>
+<li>StockAdjustIn</li>
+<li>StockAdjustOut</li>
+<li>Damage</li>
+</ul>
+<h3>When to use it</h3>
+<ul>
+<li>When physical stock and system stock do not match</li>
+<li>When opening old business records in the software</li>
+<li>When damaged stock must be removed</li>
+</ul>
+<h2>7. Expiry Management</h2>
+<h3>Purpose</h3>
+<p>Used to handle near-expiry and expired products.</p>
+<h3>Main functions</h3>
+<ul>
+<li>Show expiring products</li>
+<li>Show expired stock records</li>
+<li>Move expired stock out of active stock</li>
+<li>Mark expired stock as:</li>
+<li>Pending</li>
+<li>ReturnedToVendor</li>
+<li>Burnt</li>
+<li>Adjusted</li>
+</ul>
+<h3>Full expiry workflow</h3>
+<ol>
+<li>Product is marked as expiry-tracked.</li>
+<li>Stock is purchased with actual batch expiry date.</li>
+<li>Sales consume valid stock first.</li>
+<li>Once expired, stock is moved to expired records.</li>
+<li>Expired stock can then be:</li>
+</ol>
+<ul>
+<li>sent back to vendor</li>
+<li>burnt</li>
+<li>adjusted manually</li>
+</ul>
+<h3>Important note</h3>
+<p>Expired stock should not remain in normal sellable stock.</p>
+<h2>8. Purchase Entry</h2>
+<h3>Purpose</h3>
+<p>Used to buy stock from vendors and add that stock into the system.</p>
+<h3>Main fields</h3>
+<ul>
+<li>Vendor</li>
+<li>Wallet</li>
+<li>Purchase Date</li>
+<li>Invoice No</li>
+<li>Discount</li>
+<li>Other Charges</li>
+<li>Paid Amount</li>
+<li>Remarks</li>
+<li>Product cart</li>
+</ul>
+<h3>Per product line fields</h3>
+<ul>
+<li>Quantity</li>
+<li>Cost</li>
+<li>Batch</li>
+<li>Expiry</li>
+</ul>
+<h3>Credit support</h3>
+<p>Purchase entry supports all three conditions:</p>
+<ul>
+<li>Full paid purchase</li>
+<li>Partial payment purchase</li>
+<li>Full credit purchase</li>
+</ul>
+<h3>How to make a normal purchase</h3>
+<ol>
+<li>Open <code>Purchase Entry</code>.</li>
+<li>Select vendor.</li>
+<li>Search product.</li>
+<li>Add selected product.</li>
+<li>Enter quantity and cost.</li>
+<li>If expiry applies, enter:</li>
+</ol>
+<ul>
+<li>Batch</li>
+<li>Expiry date</li>
+</ul>
+<ol>
+<li>Enter invoice no if available.</li>
+<li>Enter paid amount.</li>
+<li>Select wallet if any amount is paid now.</li>
+<li>Save purchase.</li>
+</ol>
+<h3>How partial vendor credit works</h3>
+<p>Example:</p>
+<ul>
+<li>Total purchase = <code>Rs. 10,000</code></li>
+<li>Paid now = <code>Rs. 4,000</code></li>
+<li>Remaining payable = <code>Rs. 6,000</code></li>
+</ul>
+<p>System behavior:</p>
+<ul>
+<li>wallet is reduced by <code>Rs. 4,000</code></li>
+<li>stock is added</li>
+<li>purchase header saves full total</li>
+<li>remaining amount is saved as vendor due</li>
+<li>vendor payable screen shows the remaining amount</li>
+</ul>
+<h3>Expiry in purchase</h3>
+<p>If a product tracks expiry:</p>
+<ul>
+<li>the row is highlighted</li>
+<li>cursor moves directly to expiry entry</li>
+<li>expiry can be selected using date picker</li>
+</ul>
+<h2>9. Vendor Management</h2>
+<h3>Purpose</h3>
+<p>Used to manage suppliers, their payment schedules, linked products, purchases, and payables.</p>
+<h3>Vendor details include</h3>
+<ul>
+<li>Vendor name</li>
+<li>Phone</li>
+<li>Address</li>
+<li>Opening balance</li>
+<li>Visit day</li>
+<li>Payment cycle</li>
+<li>Credit days</li>
+<li>Next payment date</li>
+<li>Notes</li>
+<li>Linked products</li>
+</ul>
+<h3>Vendor payable view includes</h3>
+<ul>
+<li>Net balance</li>
+<li>Purchase due</li>
+<li>Payment history</li>
+<li>Purchase history</li>
+<li>Ledger</li>
+<li>Expired/returned product history</li>
+</ul>
+<h3>Vendor create/edit</h3>
+<p>Vendor creation is separated into its own form so the management screen stays clean.</p>
+<h3>Vendor linked products</h3>
+<p>Vendor and product can be linked from both sides:</p>
+<ul>
+<li>while creating/editing vendor</li>
+<li>while creating/editing product</li>
+</ul>
+<h2>10. Vendor Payments</h2>
+<h3>Purpose</h3>
+<p>Used to pay vendor against payable balance.</p>
+<h3>How it works</h3>
+<ol>
+<li>Select vendor.</li>
+<li>Enter payment amount.</li>
+<li>Select wallet.</li>
+<li>Add remarks if needed.</li>
+<li>Save payment.</li>
+</ol>
+<h3>Result</h3>
+<ul>
+<li>vendor payable reduces</li>
+<li>wallet decreases</li>
+<li>accounting voucher is posted</li>
+<li>printable payment receipt can be previewed or printed</li>
+</ul>
+<h3>Printing</h3>
+<p>Vendor payment receipts support:</p>
+<ul>
+<li>print preview</li>
+<li>direct print</li>
+<li>A4 template</li>
+</ul>
+<h2>11. Customer Management</h2>
+<h3>Purpose</h3>
+<p>Used to manage customers, credit sales, payments received, history, and ledger.</p>
+<h3>Main functions</h3>
+<ul>
+<li>Add customer</li>
+<li>Edit customer</li>
+<li>View purchase history</li>
+<li>View payment history</li>
+<li>View combined ledger</li>
+<li>Receive customer payment</li>
+<li>Print customer payment receipt</li>
+</ul>
+<h3>Customer data</h3>
+<ul>
+<li>Name</li>
+<li>Phone</li>
+<li>Address</li>
+<li>Opening balance</li>
+<li>Balance type</li>
+<li>Image</li>
+<li>Active status</li>
+</ul>
+<h3>Customer creation</h3>
+<p>Customer creation is separated into its own form.</p>
+<h3>Customer payment flow</h3>
+<p>If a customer pays an old due:</p>
+<ul>
+<li>customer balance decreases</li>
+<li>wallet increases</li>
+<li>customer ledger updates</li>
+<li>printable receipt is available</li>
+</ul>
+<h2>12. Sales Screen</h2>
+<h3>Purpose</h3>
+<p>Used for grocery billing and point-of-sale activity.</p>
+<h3>Available features</h3>
+<ul>
+<li>Product search</li>
+<li>Keyboard navigation with up/down keys</li>
+<li>Enter to add product</li>
+<li>Cart editing</li>
+<li>Quantity editing</li>
+<li>Remove product from cart</li>
+<li>New customer from sale screen</li>
+<li>Stock button inside sale screen</li>
+<li>Payment method selection</li>
+<li>Wallet selection</li>
+<li>Discount</li>
+<li>Extra charges</li>
+<li>Paid amount</li>
+<li>Credit due display</li>
+</ul>
+<h3>Supported sale types</h3>
+<ul>
+<li>Full paid sale</li>
+<li>Full credit sale</li>
+<li>Partial credit sale</li>
+</ul>
+<h3>Important credit rule</h3>
+<p>If customer still owes money after sale, customer must be selected.</p>
+<h3>Example of partial sale</h3>
+<ul>
+<li>Grand total = <code>Rs. 2,000</code></li>
+<li>Customer pays = <code>Rs. 800</code></li>
+<li>Remaining due = <code>Rs. 1,200</code></li>
+</ul>
+<p>System behavior:</p>
+<ul>
+<li>sale is saved</li>
+<li>wallet receives <code>Rs. 800</code></li>
+<li>customer due becomes <code>Rs. 1,200</code></li>
+<li>history and ledger reflect the due</li>
+</ul>
+<h3>Cashier tips</h3>
+<ul>
+<li>Scan or type product and press <code>Enter</code></li>
+<li>Use <code>Up</code> and <code>Down</code> to move in product list</li>
+<li>After product add, focus returns for next product</li>
+<li>Quantity <code>0</code> removes cart row</li>
+</ul>
+<h2>13. Recent Sales</h2>
+<h3>Purpose</h3>
+<p>Used to view, filter, print, edit, and refund past grocery and service records.</p>
+<h3>Functions</h3>
+<ul>
+<li>Combined grocery and service records</li>
+<li>Filter by customer</li>
+<li>Filter by type</li>
+<li>Edit a selected record</li>
+<li>Refund a selected record</li>
+<li>Print a single record</li>
+<li>Print multiple selected records</li>
+</ul>
+<h3>Printing</h3>
+<p>Recent sales printing is designed for customer records.</p>
+<p>It includes:</p>
+<ul>
+<li>customer details</li>
+<li>payment details</li>
+<li>status</li>
+<li>disclaimer</li>
+</ul>
+<p>It does not show internal profit or commission details.</p>
+<h3>Disclaimer format</h3>
+<p>Printed reports include wording similar to:</p>
+<p><code>This report is generated by {user} on the demand of customer.</code></p>
+<h2>14. Service Center</h2>
+<h3>Purpose</h3>
+<p>Used for non-grocery service transactions.</p>
+<h3>Typical services</h3>
+<ul>
+<li>Mobile balance</li>
+<li>Data packages</li>
+<li>Bill payment</li>
+<li>Cash withdrawal</li>
+</ul>
+<h3>Important business logic</h3>
+<ul>
+<li>Commission is your earning</li>
+<li>Service amount is not always your profit</li>
+<li>Customer service history should remain searchable</li>
+</ul>
+<h3>Features</h3>
+<ul>
+<li>Service entry</li>
+<li>Customer tracking for repeat monthly bills</li>
+<li>Reference/consumer number tracking</li>
+<li>Wallet selection</li>
+<li>Recent service history</li>
+<li>Tracked customer profiles</li>
+</ul>
+<h3>Monthly bill customers</h3>
+<p>Use customer profile and service history to track repeat bill payments every month.</p>
+<h2>15. Expense Management</h2>
+<h3>Purpose</h3>
+<p>Used to record business expenses.</p>
+<h3>Examples</h3>
+<ul>
+<li>Electricity bill</li>
+<li>Rent</li>
+<li>Salary</li>
+<li>Delivery expense</li>
+<li>Repairs</li>
+<li>Transport</li>
+</ul>
+<h3>Effect</h3>
+<ul>
+<li>expense is stored</li>
+<li>accounting is updated</li>
+<li>expense appears in dashboard and P&amp;L</li>
+</ul>
+<h2>16. Accounts and Profit &amp; Loss</h2>
+<h3>Purpose</h3>
+<p>Used to view balances and business performance.</p>
+<h3>Shows</h3>
+<ul>
+<li>account balances</li>
+<li>recent accounting vouchers</li>
+<li>grocery sales</li>
+<li>grocery profit</li>
+<li>service sales</li>
+<li>service profit</li>
+<li>date-wise P&amp;L</li>
+</ul>
+<h3>Important understanding</h3>
+<ul>
+<li>Grocery sales profit is based on sale versus cost of goods sold</li>
+<li>Service profit is based on commission/earning logic</li>
+</ul>
+<h2>17. Credit and Partial Payment Rules</h2>
+<p>This is one of the most important parts of the system.</p>
+<h3>Sales</h3>
+<ul>
+<li>Full paid:</li>
+<li>paid amount = full amount</li>
+<li>no customer due</li>
+<li>Full credit:</li>
+<li>paid amount = <code>0</code></li>
+<li>customer due = full total</li>
+<li>Partial credit:</li>
+<li>paid amount is between <code>0</code> and full total</li>
+<li>customer due = remaining amount</li>
+</ul>
+<h3>Purchases</h3>
+<ul>
+<li>Full paid:</li>
+<li>vendor due = <code>0</code></li>
+<li>Full credit:</li>
+<li>paid amount = <code>0</code></li>
+<li>vendor due = full total</li>
+<li>Partial payment:</li>
+<li>some amount paid now</li>
+<li>rest remains vendor payable</li>
+</ul>
+<h3>Wallet behavior</h3>
+<ul>
+<li>customer payment received increases wallet</li>
+<li>grocery sale payment received increases wallet</li>
+<li>purchase payment to vendor decreases wallet</li>
+<li>vendor payable payment decreases wallet</li>
+</ul>
+<h2>18. Images</h2>
+<h3>Product image</h3>
+<p>Can be:</p>
+<ul>
+<li>selected from local system</li>
+<li>captured live from camera</li>
+</ul>
+<h3>Customer image</h3>
+<p>Can be:</p>
+<ul>
+<li>selected from local system</li>
+<li>captured live from camera</li>
+</ul>
+<h3>Storage</h3>
+<p>Images are copied into local application folders for reuse.</p>
+<h2>19. Printing</h2>
+<p>Current printing support includes:</p>
+<ul>
+<li>vendor payment receipt</li>
+<li>customer payment receipt</li>
+<li>vendor statement</li>
+<li>recent sales record print</li>
+</ul>
+<h3>Print styles</h3>
+<ul>
+<li>A4 template</li>
+<li>preview before print</li>
+<li>customer-facing clean layout</li>
+</ul>
+<h2>20. Refunds and Editing</h2>
+<h3>Grocery sale editing</h3>
+<p>Recent sales allows selected sales to be edited.</p>
+<h3>Refunds</h3>
+<p>Refund updates:</p>
+<ul>
+<li>sale/service status</li>
+<li>stock if applicable</li>
+<li>wallet reversal if applicable</li>
+<li>accounting reversal if applicable</li>
+</ul>
+<h2>21. Suggested Daily Workflow</h2>
+<h3>Start of day</h3>
+<ol>
+<li>Login</li>
+<li>Check dashboard</li>
+<li>Review low stock</li>
+<li>Review expiry alerts</li>
+</ol>
+<h3>During the day</h3>
+<ol>
+<li>Make sales</li>
+<li>Add customer if credit is needed</li>
+<li>Record services</li>
+<li>Record expenses</li>
+<li>Record vendor purchases if stock arrives</li>
+</ol>
+<h3>End of day</h3>
+<ol>
+<li>Review dashboard</li>
+<li>Review recent sales</li>
+<li>Check customer dues</li>
+<li>Check vendor payables</li>
+<li>Check accounts summary</li>
+</ol>
+<h2>22. Suggested Weekly Workflow</h2>
+<ol>
+<li>Review customer outstanding balances</li>
+<li>Review vendor due list</li>
+<li>Review expired stock pending action</li>
+<li>Review low-stock items</li>
+<li>Review profit and loss</li>
+</ol>
+<h2>23. Troubleshooting</h2>
+<h3>Login fails</h3>
+<p>Check:</p>
+<ul>
+<li>database connection string</li>
+<li>MySQL server is running</li>
+<li>database exists</li>
+<li>username/password are correct</li>
+</ul>
+<h3>Product not visible in sales or purchase</h3>
+<p>Check:</p>
+<ul>
+<li>product is active</li>
+<li>correct vendor is selected in purchase</li>
+<li>search text is correct</li>
+</ul>
+<h3>Credit sale error asking for customer</h3>
+<p>This happens when:</p>
+<ul>
+<li>paid amount is less than grand total</li>
+<li>no customer is selected</li>
+</ul>
+<p>Fix:</p>
+<ul>
+<li>select customer before saving</li>
+</ul>
+<h3>Purchase payment error</h3>
+<p>If any amount is paid now, a wallet must be selected.</p>
+<h3>Expiry save error</h3>
+<p>If product tracks expiry, purchase line must contain expiry date.</p>
+<h3>Designer issues in Visual Studio</h3>
+<p>If form designer does not open:</p>
+<ol>
+<li>close the designer tab</li>
+<li>build project</li>
+<li>reopen designer</li>
+</ol>
+<h2>24. Important Operational Advice</h2>
+<ul>
+<li>Always assign customer for credit sales</li>
+<li>Always assign actual expiry date at purchase level</li>
+<li>Keep vendor-product links updated</li>
+<li>Use recent sales print when customer asks for record</li>
+<li>Do not leave expired stock in normal inventory</li>
+<li>Record partial payments properly instead of adjusting manually outside the system</li>
+</ul>
+<h2>25. Future Manual Expansion</h2>
+<p>This manual can later be extended with:</p>
+<ul>
+<li>screenshots of each form</li>
+<li>cashier training section</li>
+<li>admin training section</li>
+<li>backup and restore guide</li>
+<li>cloud deployment guide</li>
+<li>printer setup guide</li>
+</ul>
+<div class="footer"></div>
+<p>Prepared for <code>Arslan Communication &amp; Karyana Store</code> as an operational guide for shop staff, cashier, owner, and manager use.</p>
+<div class="footer">Prepared for Arslan Communication & Karyana Store as a complete day-to-day operating manual.</div>
+</main>
+</div>
+</body>
+</html>
