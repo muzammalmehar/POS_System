@@ -15,6 +15,7 @@ namespace ShopPOS.Services
             using (MySqlConnection connection = DatabaseConnectionFactory.CreateOpenConnection())
             {
                 ExpiryService.EnsureExpirySchema(connection, null);
+                ExpiryService.SyncEditableBatchExpiry(connection, null, null);
                 EnsureLegacyExpiryTrackedBatches(connection, null);
 
                 using (MySqlCommand command = connection.CreateCommand())

@@ -26,6 +26,8 @@ namespace ShopPOS.Models
 
         public string ExternalTransactionId { get; set; }
 
+        public bool IsExternalTransactionIdNotApplicable { get; set; }
+
         public decimal Amount { get; set; }
 
         public decimal ServiceCharge { get; set; }

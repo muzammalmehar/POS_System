@@ -4,6 +4,8 @@ namespace ShopPOS.Models
 {
     public class RecentSaleItem
     {
+        public string EntryType { get; set; }
+
         public string SaleNo { get; set; }
 
         public DateTime SaleDate { get; set; }

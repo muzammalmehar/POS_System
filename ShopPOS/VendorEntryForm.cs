@@ -11,6 +11,7 @@ namespace ShopPOS
     {
         private readonly VendorService _vendorService;
         private readonly int? _supplierId;
+        private List<VendorProductLinkItem> _vendorProducts;
 
         public int SavedSupplierId { get; private set; }
 
@@ -18,6 +19,7 @@ namespace ShopPOS
         {
             _vendorService = new VendorService();
             _supplierId = supplierId;
+            _vendorProducts = new List<VendorProductLinkItem>();
             InitializeComponent();
             ApplyFormMode();
             ConfigureVendorProductsGrid();
@@ -76,8 +78,13 @@ namespace ShopPOS
 
         private void LoadVendorProducts()
         {
-            dgvVendorProducts.DataSource = null;
-            dgvVendorProducts.DataSource = _vendorService.GetVendorProducts(_supplierId);
+            _vendorProducts = _vendorService.GetVendorProducts(_supplierId);
+            ApplyVendorProductFilter();
+        }
+
+        private void txtProductSearch_TextChanged(object sender, EventArgs e)
+        {
+            ApplyVendorProductFilter();
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -130,17 +137,33 @@ namespace ShopPOS
 
         private List<VendorProductLinkItem> GetVendorProductItems()
         {
-            List<VendorProductLinkItem> items = new List<VendorProductLinkItem>();
-            for (int i = 0; i < dgvVendorProducts.Rows.Count; i++)
+            return _vendorProducts == null ? new List<VendorProductLinkItem>() : new List<VendorProductLinkItem>(_vendorProducts);
+        }
+
+        private void ApplyVendorProductFilter()
+        {
+            if (dgvVendorProducts == null)
             {
-                VendorProductLinkItem item = dgvVendorProducts.Rows[i].DataBoundItem as VendorProductLinkItem;
-                if (item != null)
+                return;
+            }
+
+            dgvVendorProducts.EndEdit();
+
+            string search = txtProductSearch == null ? string.Empty : txtProductSearch.Text.Trim().ToLowerInvariant();
+            List<VendorProductLinkItem> filtered = new List<VendorProductLinkItem>();
+
+            for (int i = 0; i < _vendorProducts.Count; i++)
+            {
+                VendorProductLinkItem item = _vendorProducts[i];
+                string haystack = string.Format("{0} {1}", item.ProductCode, item.ProductName).ToLowerInvariant();
+                if (string.IsNullOrWhiteSpace(search) || haystack.Contains(search))
                 {
-                    items.Add(item);
+                    filtered.Add(item);
                 }
             }
 
-            return items;
+            dgvVendorProducts.DataSource = null;
+            dgvVendorProducts.DataSource = filtered;
         }
 
         private void ConfigureVendorProductsGrid()

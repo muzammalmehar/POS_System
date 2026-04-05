@@ -218,6 +218,7 @@ namespace ShopPOS.Services
                         }
 
                         SavePreferredVendorLink(connection, transaction, productId, request.PreferredVendorId, request.PurchasePrice);
+                        ExpiryService.SyncEditableBatchExpiry(connection, transaction, productId);
                         transaction.Commit();
                     }
                     catch

@@ -11,48 +11,7 @@ namespace ShopPOS
     {
         private readonly UserSession _session;
         private readonly DashboardService _dashboardService;
-
-        private Panel scrollHost;
-        private Panel dashboardCanvas;
-
-        private Label lblWelcome;
-        private Label lblRole;
-        private Label lblUsername;
-        private Label lblLastUpdated;
-        private Label lblDashboardStatus;
-
-        private Label lblTodaySalesValue;
-        private Label lblTodayCreditSalesValue;
-        private Label lblTodayCashSalesValue;
-        private Label lblTodaySalesProfitValue;
-        private Label lblTodayServiceSalesValue;
-        private Label lblTodayServiceProfitValue;
-        private Label lblTodayExpensesValue;
-        private Label lblLowStockValue;
-        private Label lblTodayOrdersValue;
-        private Label lblExpiryAttentionValue;
-        private Label lblExpiryAttentionMeta;
-
-        private Button btnRefresh;
-        private Button btnLogout;
-        private Button btnNewSale;
-        private Button btnNewSalePrimary;
-        private Button btnStockPrimary;
-        private Button btnProductPrimary;
-        private Button btnPurchasePrimary;
-        private Button btnVendorPrimary;
-        private Button btnVendorPaymentPrimary;
-        private Button btnExpensePrimary;
-        private Button btnExpiryPrimary;
-        private Button btnServicePrimary;
-        private Button btnServiceTransactionsPrimary;
-        private Button btnCustomerPrimary;
-        private Button btnAccountsPrimary;
-        private Button btnRecentSalesPrimary;
-
-        private DataGridView dgvLowStock;
-        private DataGridView dgvRecentSales;
-        private bool _layoutBuilt;
+        private bool _dashboardGridEventsAttached;
 
         public MainForm()
         {
@@ -65,7 +24,7 @@ namespace ShopPOS
             };
             _dashboardService = new DashboardService();
             InitializeComponent();
-            BuildFormLayout();
+            EnsureDashboardGridConfiguration();
         }
 
         public MainForm(UserSession session)
@@ -78,41 +37,16 @@ namespace ShopPOS
             _session = session;
             _dashboardService = new DashboardService();
             InitializeComponent();
-            BuildFormLayout();
-        }
-
-        private void BuildFormLayout()
-        {
-            if (_layoutBuilt)
-            {
-                return;
-            }
-
-            _layoutBuilt = true;
-            SuspendLayout();
-
-            Controls.Clear();
-            BackColor = Color.FromArgb(241, 244, 249);
-            ClientSize = new Size(1380, 860);
-            MinimumSize = new Size(1200, 760);
-            StartPosition = FormStartPosition.CenterScreen;
-            WindowState = FormWindowState.Maximized;
-            Text = ShopBranding.DashboardTitle;
-
-            Controls.Add(CreateScrollHost());
-            Controls.Add(CreateHeaderPanel());
-
-            Load += MainForm_Load;
-            ResumeLayout(false);
+            EnsureDashboardGridConfiguration();
         }
 
         private Control CreateHeaderPanel()
         {
             Panel header = new Panel
             {
-                BackColor = Color.FromArgb(19, 43, 79),
+                BackColor = Color.FromArgb(27, 107, 83),
                 Dock = DockStyle.Top,
-                Height = 124
+                Height = 122
             };
 
             TableLayoutPanel headerLayout = new TableLayoutPanel
@@ -126,50 +60,71 @@ namespace ShopPOS
             headerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36F));
             header.Controls.Add(headerLayout);
 
-            Panel titlePanel = new Panel { Dock = DockStyle.Fill };
-            headerLayout.Controls.Add(titlePanel, 0, 0);
+            TableLayoutPanel titleLayout = new TableLayoutPanel
+            {
+                ColumnCount = 1,
+                Dock = DockStyle.Fill,
+                RowCount = 3
+            };
+            titleLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
+            titleLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22F));
+            titleLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22F));
+            headerLayout.Controls.Add(titleLayout, 0, 0);
 
             lblWelcome = new Label
             {
-                AutoSize = true,
-                Font = new Font("Segoe UI Semibold", 20F, FontStyle.Bold),
+                AutoEllipsis = true,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI Semibold", 21F, FontStyle.Bold),
                 ForeColor = Color.White,
-                Location = new Point(0, 0),
-                Text = ShopBranding.ShopName
+                Margin = new Padding(0),
+                Text = ShopBranding.ShopName,
+                TextAlign = ContentAlignment.MiddleLeft
             };
-            titlePanel.Controls.Add(lblWelcome);
+            titleLayout.Controls.Add(lblWelcome, 0, 0);
 
             lblRole = new Label
             {
-                AutoSize = true,
+                AutoEllipsis = true,
+                Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI", 10F),
                 ForeColor = Color.WhiteSmoke,
-                Location = new Point(3, 44),
-                Text = "Central dashboard for grocery sales, services, stock, vendors, and accounts."
+                Margin = new Padding(0),
+                Text = "Central dashboard for grocery sales, services, stock, vendors, and accounts.",
+                TextAlign = ContentAlignment.MiddleLeft
             };
-            titlePanel.Controls.Add(lblRole);
+            titleLayout.Controls.Add(lblRole, 0, 1);
 
             lblUsername = new Label
             {
-                AutoSize = true,
+                AutoEllipsis = true,
+                Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI", 10F),
                 ForeColor = Color.WhiteSmoke,
-                Location = new Point(3, 68),
-                Text = "Signed in user"
+                Margin = new Padding(0),
+                Text = "Signed in user",
+                TextAlign = ContentAlignment.MiddleLeft
             };
-            titlePanel.Controls.Add(lblUsername);
+            titleLayout.Controls.Add(lblUsername, 0, 2);
 
-            Panel actionPanel = new Panel { Dock = DockStyle.Fill };
-            headerLayout.Controls.Add(actionPanel, 1, 0);
+            TableLayoutPanel actionLayout = new TableLayoutPanel
+            {
+                ColumnCount = 1,
+                Dock = DockStyle.Fill,
+                RowCount = 2
+            };
+            actionLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44F));
+            actionLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22F));
+            headerLayout.Controls.Add(actionLayout, 1, 0);
 
             FlowLayoutPanel actions = new FlowLayoutPanel
             {
-                Dock = DockStyle.Top,
+                Dock = DockStyle.Fill,
                 FlowDirection = FlowDirection.RightToLeft,
-                Height = 44,
+                Margin = new Padding(0),
                 WrapContents = false
             };
-            actionPanel.Controls.Add(actions);
+            actionLayout.Controls.Add(actions, 0, 0);
 
             btnLogout = CreateTopButton("Logout", Color.FromArgb(214, 70, 74), btnLogout_Click);
             actions.Controls.Add(btnLogout);
@@ -182,16 +137,14 @@ namespace ShopPOS
 
             Label lblActionHint = new Label
             {
-                Dock = DockStyle.Top,
+                Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI", 9F),
                 ForeColor = Color.Gainsboro,
-                Height = 24,
+                Margin = new Padding(0),
                 Text = "Quick controls for daily cashier work",
-                TextAlign = ContentAlignment.MiddleRight,
-                Top = 48
+                TextAlign = ContentAlignment.MiddleRight
             };
-            actionPanel.Controls.Add(lblActionHint);
-            lblActionHint.BringToFront();
+            actionLayout.Controls.Add(lblActionHint, 0, 1);
 
             return header;
         }
@@ -217,9 +170,30 @@ namespace ShopPOS
             {
                 BackColor = Color.Transparent,
                 Location = new Point(24, 18),
-                Size = new Size(1270, 952)
+                Size = new Size(1270, 1108)
             };
             canvas.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+
+            TableLayoutPanel layout = new TableLayoutPanel
+            {
+                ColumnCount = 1,
+                Dock = DockStyle.Fill,
+                RowCount = 5
+            };
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 42F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 226F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 68F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 310F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 404F));
+            canvas.Controls.Add(layout);
+
+            Panel overviewPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Margin = new Padding(0)
+            };
+            layout.Controls.Add(overviewPanel, 0, 0);
 
             Label lblOverview = new Label
             {
@@ -229,7 +203,7 @@ namespace ShopPOS
                 Location = new Point(0, 0),
                 Text = "Today Overview"
             };
-            canvas.Controls.Add(lblOverview);
+            overviewPanel.Controls.Add(lblOverview);
 
             Label lblOverviewHint = new Label
             {
@@ -239,78 +213,78 @@ namespace ShopPOS
                 Location = new Point(0, 24),
                 Text = "Important today figures with credit, cash, services, and inventory attention."
             };
-            canvas.Controls.Add(lblOverviewHint);
+            overviewPanel.Controls.Add(lblOverviewHint);
 
             Panel metricsSection = CreateContentCard(210, new Padding(12));
-            metricsSection.Location = new Point(0, 46);
-            metricsSection.Size = new Size(1268, 210);
-            metricsSection.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            metricsSection.Dock = DockStyle.Fill;
+            metricsSection.Margin = new Padding(0, 0, 0, 18);
             metricsSection.Controls.Add(CreateMetricsGrid());
-            canvas.Controls.Add(metricsSection);
+            layout.Controls.Add(metricsSection, 0, 1);
 
             Panel statusPanel = CreateStatusPanel();
-            statusPanel.Location = new Point(0, 268);
-            statusPanel.Size = new Size(1268, 64);
-            statusPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            canvas.Controls.Add(statusPanel);
+            statusPanel.Dock = DockStyle.Fill;
+            statusPanel.Margin = new Padding(0, 0, 0, 18);
+            layout.Controls.Add(statusPanel, 0, 2);
 
-            Panel actionsSection = CreateContentCard(236, new Padding(14, 12, 14, 14));
-            actionsSection.Location = new Point(0, 344);
-            actionsSection.Size = new Size(1268, 236);
-            actionsSection.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            Label lblActions = new Label
+            Panel actionsSection = CreateContentCard(276, new Padding(16, 12, 16, 16));
+            actionsSection.Dock = DockStyle.Fill;
+            actionsSection.Margin = new Padding(0, 0, 0, 18);
+            TableLayoutPanel actionsLayout = new TableLayoutPanel
             {
-                AutoSize = true,
-                Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(44, 56, 71),
-                Location = new Point(14, 10),
-                Text = "Quick Actions"
+                ColumnCount = 1,
+                Dock = DockStyle.Fill,
+                RowCount = 2
             };
-            actionsSection.Controls.Add(lblActions);
-            Label lblActionsHint = new Label
+            actionsLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 46F));
+            actionsLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            actionsSection.Controls.Add(actionsLayout);
+
+            Panel actionsHeader = CreateSectionHeader(
+                "Quick Actions",
+                "Open the main working screens directly from here.");
+            actionsLayout.Controls.Add(actionsHeader, 0, 0);
+
+            TableLayoutPanel actionsHost = new TableLayoutPanel
             {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.FromArgb(107, 120, 132),
-                Location = new Point(14, 31),
-                Text = "Open the main working screens directly from here."
+                ColumnCount = 1,
+                Dock = DockStyle.Fill,
+                Padding = new Padding(0, 0, 0, 0),
+                RowCount = 1
             };
-            actionsSection.Controls.Add(lblActionsHint);
             TableLayoutPanel actionsGrid = CreateQuickActionsGrid();
-            actionsGrid.Location = new Point(12, 54);
-            actionsGrid.Size = new Size(1242, 172);
-            actionsGrid.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            actionsSection.Controls.Add(actionsGrid);
-            canvas.Controls.Add(actionsSection);
+            actionsGrid.Dock = DockStyle.Fill;
+            actionsHost.Controls.Add(actionsGrid, 0, 0);
+            actionsLayout.Controls.Add(actionsHost, 0, 1);
+            layout.Controls.Add(actionsSection, 0, 3);
 
-            Panel tablesSection = CreateContentCard(330, new Padding(14));
-            tablesSection.Location = new Point(0, 592);
-            tablesSection.Size = new Size(1268, 330);
-            tablesSection.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            Label lblOps = new Label
+            Panel tablesSection = CreateContentCard(360, new Padding(14));
+            tablesSection.Dock = DockStyle.Fill;
+            tablesSection.Margin = new Padding(0);
+            TableLayoutPanel tablesLayout = new TableLayoutPanel
             {
-                AutoSize = true,
-                Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(44, 56, 71),
-                Location = new Point(14, 10),
-                Text = "Operational Snapshot"
+                ColumnCount = 1,
+                Dock = DockStyle.Fill,
+                RowCount = 2
             };
-            tablesSection.Controls.Add(lblOps);
-            Label lblOpsHint = new Label
+            tablesLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 46F));
+            tablesLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tablesSection.Controls.Add(tablesLayout);
+
+            Panel tablesHeader = CreateSectionHeader(
+                "Operational Snapshot",
+                "Low stock and recent grocery invoices in one place.");
+            tablesLayout.Controls.Add(tablesHeader, 0, 0);
+
+            Panel tablesHost = new Panel
             {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.FromArgb(107, 120, 132),
-                Location = new Point(14, 31),
-                Text = "Low stock and recent grocery invoices in one place."
+                Dock = DockStyle.Fill,
+                Padding = new Padding(0)
             };
-            tablesSection.Controls.Add(lblOpsHint);
             TableLayoutPanel tablesGrid = CreateOperationalTables();
-            tablesGrid.Location = new Point(12, 54);
-            tablesGrid.Size = new Size(1242, 262);
-            tablesGrid.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            tablesSection.Controls.Add(tablesGrid);
-            canvas.Controls.Add(tablesSection);
+            tablesGrid.Dock = DockStyle.Fill;
+            tablesHost.Controls.Add(tablesGrid);
+            tablesLayout.Controls.Add(tablesHost, 0, 1);
+            layout.Controls.Add(tablesSection, 0, 4);
 
             return canvas;
         }
@@ -351,57 +325,23 @@ namespace ShopPOS
                 ColumnCount = 1,
                 Dock = DockStyle.Fill,
                 Padding = new Padding(16, 14, 16, 12),
-                RowCount = 3
+                RowCount = 4
             };
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 34F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             panel.Controls.Add(layout);
 
             layout.Controls.Add(CreateCardCaption("Today Grocery Sales"), 0, 0);
 
             lblTodaySalesValue = CreateCardValue(Color.FromArgb(24, 125, 68), false);
+            lblTodaySalesValue.Font = new Font("Segoe UI Semibold", 18F, FontStyle.Bold);
             layout.Controls.Add(lblTodaySalesValue, 0, 1);
 
-            TableLayoutPanel breakdownLayout = new TableLayoutPanel
-            {
-                ColumnCount = 2,
-                Dock = DockStyle.Fill,
-                Margin = new Padding(0, 4, 0, 0),
-                RowCount = 2
-            };
-            breakdownLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 44F));
-            breakdownLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 56F));
-            breakdownLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            breakdownLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            layout.Controls.Add(breakdownLayout, 0, 2);
-
-            breakdownLayout.Controls.Add(CreateBreakdownLabel("Credit Sales"), 0, 0);
-
-            lblTodayCreditSalesValue = new Label
-            {
-                AutoEllipsis = true,
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.FromArgb(171, 72, 122),
-                Margin = new Padding(0),
-                TextAlign = ContentAlignment.MiddleLeft,
-                Text = "Rs. 0.00"
-            };
-            breakdownLayout.Controls.Add(lblTodayCreditSalesValue, 1, 0);
-            breakdownLayout.Controls.Add(CreateBreakdownLabel("Cash Sales"), 0, 1);
-
-            lblTodayCashSalesValue = new Label
-            {
-                AutoEllipsis = true,
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.FromArgb(24, 125, 68),
-                Margin = new Padding(0),
-                TextAlign = ContentAlignment.MiddleLeft,
-                Text = "Rs. 0.00"
-            };
-            breakdownLayout.Controls.Add(lblTodayCashSalesValue, 1, 1);
+            layout.Controls.Add(CreateInlineBreakdown("Credit Sales", Color.FromArgb(171, 72, 122), out lblTodayCreditSalesValue), 0, 2);
+            layout.Controls.Add(CreateInlineBreakdown("Cash Sales", Color.FromArgb(24, 125, 68), out lblTodayCashSalesValue), 0, 3);
 
             return panel;
         }
@@ -480,19 +420,20 @@ namespace ShopPOS
         {
             TableLayoutPanel actionsGrid = new TableLayoutPanel
             {
-                ColumnCount = 5,
+                ColumnCount = 4,
                 Dock = DockStyle.Fill,
-                RowCount = 3
+                RowCount = 4
             };
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < actionsGrid.ColumnCount; i++)
             {
-                actionsGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+                actionsGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             }
 
-            actionsGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 58F));
-            actionsGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 58F));
-            actionsGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 58F));
+            actionsGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 52F));
+            actionsGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 52F));
+            actionsGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 52F));
+            actionsGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 52F));
 
             int index = 0;
             AddActionButton(actionsGrid, ref index, "Sales Screen", Color.FromArgb(24, 125, 68), btnNewSale_Click, out btnNewSalePrimary);
@@ -526,31 +467,21 @@ namespace ShopPOS
 
             dgvLowStock = CreateDashboardGrid();
             ConfigureLowStockGrid();
-
-            GroupBox lowStockGroup = new GroupBox
-            {
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
-                Padding = new Padding(12, 24, 12, 12),
-                Text = "Low Stock Products"
-            };
-            lowStockGroup.Margin = new Padding(0, 0, 10, 0);
-            lowStockGroup.Controls.Add(dgvLowStock);
-            split.Controls.Add(lowStockGroup, 0, 0);
+            Panel lowStockSection = CreateGridSection(
+                "Low Stock Products",
+                "Products at or below reorder level right now.",
+                dgvLowStock);
+            lowStockSection.Margin = new Padding(0, 0, 10, 0);
+            split.Controls.Add(lowStockSection, 0, 0);
 
             dgvRecentSales = CreateDashboardGrid();
             ConfigureRecentSalesGrid();
-
-            GroupBox recentSalesGroup = new GroupBox
-            {
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
-                Padding = new Padding(12, 24, 12, 12),
-                Text = "Recent Sales"
-            };
-            recentSalesGroup.Margin = new Padding(10, 0, 0, 0);
-            recentSalesGroup.Controls.Add(dgvRecentSales);
-            split.Controls.Add(recentSalesGroup, 1, 0);
+            Panel recentSalesSection = CreateGridSection(
+                "Recent Sales & Services",
+                "Latest grocery and completed service entries in the system.",
+                dgvRecentSales);
+            recentSalesSection.Margin = new Padding(10, 0, 0, 0);
+            split.Controls.Add(recentSalesSection, 1, 0);
 
             return split;
         }
@@ -561,7 +492,7 @@ namespace ShopPOS
             {
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.FixedSingle,
-                Height = 64,
+                Height = 76,
                 Margin = new Padding(0, 0, 0, 16),
                 Dock = DockStyle.Fill
             };
@@ -570,13 +501,13 @@ namespace ShopPOS
             {
                 ColumnCount = 2,
                 Dock = DockStyle.Fill,
-                Padding = new Padding(22, 12, 18, 10),
+                Padding = new Padding(22, 10, 18, 10),
                 RowCount = 2
             };
             textLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 68F));
             textLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32F));
-            textLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22F));
-            textLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22F));
+            textLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
+            textLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
 
             Panel accent = new Panel
             {
@@ -647,8 +578,89 @@ namespace ShopPOS
                 BackColor = Color.FromArgb(251, 252, 254),
                 BorderStyle = BorderStyle.FixedSingle,
                 Dock = DockStyle.Fill,
-                Margin = new Padding(6)
+                Margin = new Padding(6),
+                Padding = new Padding(0)
             };
+        }
+
+        private Panel CreateSectionHeader(string title, string subtitle)
+        {
+            Panel header = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Margin = new Padding(0)
+            };
+
+            Label titleLabel = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(44, 56, 71),
+                Location = new Point(2, 0),
+                Text = title
+            };
+            header.Controls.Add(titleLabel);
+
+            Label subtitleLabel = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F),
+                ForeColor = Color.FromArgb(107, 120, 132),
+                Location = new Point(2, 21),
+                Text = subtitle
+            };
+            header.Controls.Add(subtitleLabel);
+
+            return header;
+        }
+
+        private Panel CreateGridSection(string title, string subtitle, Control body)
+        {
+            Panel section = new Panel
+            {
+                BackColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle,
+                Dock = DockStyle.Fill
+            };
+
+            Panel header = new Panel
+            {
+                BackColor = Color.White,
+                Dock = DockStyle.Top,
+                Height = 60
+            };
+            section.Controls.Add(header);
+
+            Label titleLabel = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI Semibold", 10.5F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(44, 56, 71),
+                Location = new Point(14, 8),
+                Text = title
+            };
+            header.Controls.Add(titleLabel);
+
+            Label subtitleLabel = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI", 8.5F),
+                ForeColor = Color.FromArgb(107, 120, 132),
+                Location = new Point(14, 31),
+                Text = subtitle
+            };
+            header.Controls.Add(subtitleLabel);
+
+            Panel bodyHost = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(12, 6, 12, 12)
+            };
+            body.Dock = DockStyle.Fill;
+            bodyHost.Controls.Add(body);
+            section.Controls.Add(bodyHost);
+
+            return section;
         }
 
         private Label CreateCardCaption(string text)
@@ -679,6 +691,85 @@ namespace ShopPOS
                 TextAlign = ContentAlignment.MiddleLeft,
                 Text = compact ? "0" : "Rs. 0.00"
             };
+        }
+
+        private Control CreateBreakdownSummary(string caption, Color accentColor, out Label valueLabel)
+        {
+            TableLayoutPanel block = new TableLayoutPanel
+            {
+                ColumnCount = 1,
+                Dock = DockStyle.Fill,
+                Margin = new Padding(0),
+                RowCount = 2
+            };
+            block.RowStyles.Add(new RowStyle(SizeType.Absolute, 18F));
+            block.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
+            Label captionLabel = new Label
+            {
+                AutoEllipsis = true,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI Semibold", 8.5F, FontStyle.Bold),
+                ForeColor = Color.DimGray,
+                Margin = new Padding(0),
+                Text = caption,
+                TextAlign = ContentAlignment.BottomLeft
+            };
+            block.Controls.Add(captionLabel, 0, 0);
+
+            valueLabel = new Label
+            {
+                AutoEllipsis = true,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
+                ForeColor = accentColor,
+                Margin = new Padding(0),
+                Text = "Rs. 0.00",
+                TextAlign = ContentAlignment.TopLeft
+            };
+            block.Controls.Add(valueLabel, 0, 1);
+
+            return block;
+        }
+
+        private Control CreateInlineBreakdown(string caption, Color accentColor, out Label valueLabel)
+        {
+            TableLayoutPanel line = new TableLayoutPanel
+            {
+                ColumnCount = 2,
+                Dock = DockStyle.Fill,
+                Margin = new Padding(0),
+                RowCount = 1
+            };
+            line.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 42F));
+            line.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 58F));
+            line.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
+            Label captionLabel = new Label
+            {
+                AutoEllipsis = true,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI Semibold", 8.75F, FontStyle.Bold),
+                ForeColor = Color.DimGray,
+                Margin = new Padding(0),
+                Text = caption,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            line.Controls.Add(captionLabel, 0, 0);
+
+            valueLabel = new Label
+            {
+                AutoEllipsis = true,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 8.75F),
+                ForeColor = accentColor,
+                Margin = new Padding(0),
+                Text = "Rs. 0.00",
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            line.Controls.Add(valueLabel, 1, 0);
+
+            return line;
         }
 
         private static Label CreateBreakdownLabel(string text)
@@ -730,7 +821,7 @@ namespace ShopPOS
                 UseVisualStyleBackColor = false
             };
             button.Click += clickHandler;
-            grid.Controls.Add(button, index % 5, index / 5);
+            grid.Controls.Add(button, index % grid.ColumnCount, index / grid.ColumnCount);
             index++;
         }
 
@@ -761,29 +852,144 @@ namespace ShopPOS
 
         private void ConfigureLowStockGrid()
         {
-            dgvLowStock.Columns.Add(CreateTextColumn("ProductCode", "Code", 88F, null));
-            dgvLowStock.Columns.Add(CreateTextColumn("ProductName", "Product", 155F, null));
-            dgvLowStock.Columns.Add(CreateTextColumn("CurrentStock", "Current", 80F, "N2"));
-            dgvLowStock.Columns.Add(CreateTextColumn("ReorderLevel", "Reorder", 80F, "N2"));
-            dgvLowStock.Columns.Add(CreateTextColumn("Status", "Status", 90F, null));
+            ApplyGridStyle(dgvLowStock);
+            dgvLowStock.Columns.Clear();
+            dgvLowStock.Columns.Add(CreateTextColumn("ProductCode", "Code", 76F, null, DataGridViewContentAlignment.MiddleLeft, 88));
+            dgvLowStock.Columns.Add(CreateTextColumn("ProductName", "Product", 150F, null, DataGridViewContentAlignment.MiddleLeft, 160));
+            dgvLowStock.Columns.Add(CreateTextColumn("CurrentStock", "Current", 64F, "N2", DataGridViewContentAlignment.MiddleRight, 82));
+            dgvLowStock.Columns.Add(CreateTextColumn("ReorderLevel", "Reorder", 64F, "N2", DataGridViewContentAlignment.MiddleRight, 82));
+            dgvLowStock.Columns.Add(CreateTextColumn("Status", "Status", 78F, null, DataGridViewContentAlignment.MiddleCenter, 92));
         }
 
         private void ConfigureRecentSalesGrid()
         {
-            dgvRecentSales.Columns.Add(CreateTextColumn("SaleNo", "Sale No", 86F, null));
-            dgvRecentSales.Columns.Add(CreateTextColumn("SaleDate", "Date", 112F, "dd MMM yyyy hh:mm tt"));
-            dgvRecentSales.Columns.Add(CreateTextColumn("GrandTotal", "Amount", 88F, "N2"));
-            dgvRecentSales.Columns.Add(CreateTextColumn("PaymentMethod", "Payment", 88F, null));
-            dgvRecentSales.Columns.Add(CreateTextColumn("Cashier", "Cashier", 120F, null));
+            ApplyGridStyle(dgvRecentSales);
+            dgvRecentSales.Columns.Clear();
+            dgvRecentSales.Columns.Add(CreateTextColumn("EntryType", "Type", 60F, null, DataGridViewContentAlignment.MiddleCenter, 82));
+            dgvRecentSales.Columns.Add(CreateTextColumn("SaleNo", "Ref No", 80F, null, DataGridViewContentAlignment.MiddleLeft, 94));
+            dgvRecentSales.Columns.Add(CreateTextColumn("SaleDate", "Date", 130F, "dd MMM yyyy hh:mm tt", DataGridViewContentAlignment.MiddleLeft, 156));
+            dgvRecentSales.Columns.Add(CreateTextColumn("GrandTotal", "Amount", 74F, "N2", DataGridViewContentAlignment.MiddleRight, 88));
+            dgvRecentSales.Columns.Add(CreateTextColumn("PaymentMethod", "Payment", 70F, null, DataGridViewContentAlignment.MiddleCenter, 84));
+            dgvRecentSales.Columns.Add(CreateTextColumn("Cashier", "Cashier", 86F, null, DataGridViewContentAlignment.MiddleLeft, 98));
         }
 
-        private static DataGridViewTextBoxColumn CreateTextColumn(string propertyName, string headerText, float fillWeight, string format)
+        private void EnsureDashboardGridConfiguration()
+        {
+            if (dgvLowStock != null && dgvLowStock.Columns.Count == 0)
+            {
+                ConfigureLowStockGrid();
+            }
+
+            if (dgvRecentSales != null && dgvRecentSales.Columns.Count == 0)
+            {
+                ConfigureRecentSalesGrid();
+            }
+
+            AttachDashboardGridEvents();
+            FitDashboardGridColumns();
+        }
+
+        private void AttachDashboardGridEvents()
+        {
+            if (_dashboardGridEventsAttached)
+            {
+                return;
+            }
+
+            if (dgvLowStock != null)
+            {
+                dgvLowStock.Resize += DashboardGrid_Resize;
+            }
+
+            if (dgvRecentSales != null)
+            {
+                dgvRecentSales.Resize += DashboardGrid_Resize;
+            }
+
+            _dashboardGridEventsAttached = true;
+        }
+
+        private void DashboardGrid_Resize(object sender, EventArgs e)
+        {
+            FitDashboardGridColumns();
+        }
+
+        private void FitDashboardGridColumns()
+        {
+            FitLowStockGridColumns();
+            FitRecentSalesGridColumns();
+        }
+
+        private void FitLowStockGridColumns()
+        {
+            if (dgvLowStock == null || dgvLowStock.Columns.Count < 5)
+            {
+                return;
+            }
+
+            int availableWidth = dgvLowStock.ClientSize.Width - 8;
+            if (availableWidth <= 0)
+            {
+                return;
+            }
+
+            int codeWidth = Math.Max(80, (int)(availableWidth * 0.16M));
+            int productWidth = Math.Max(180, (int)(availableWidth * 0.34M));
+            int currentWidth = Math.Max(78, (int)(availableWidth * 0.14M));
+            int reorderWidth = Math.Max(78, (int)(availableWidth * 0.14M));
+            int statusWidth = Math.Max(96, availableWidth - codeWidth - productWidth - currentWidth - reorderWidth - 4);
+
+            dgvLowStock.Columns[0].Width = codeWidth;
+            dgvLowStock.Columns[1].Width = productWidth;
+            dgvLowStock.Columns[2].Width = currentWidth;
+            dgvLowStock.Columns[3].Width = reorderWidth;
+            dgvLowStock.Columns[4].Width = statusWidth;
+        }
+
+        private void FitRecentSalesGridColumns()
+        {
+            if (dgvRecentSales == null || dgvRecentSales.Columns.Count < 6)
+            {
+                return;
+            }
+
+            int availableWidth = dgvRecentSales.ClientSize.Width - 8;
+            if (availableWidth <= 0)
+            {
+                return;
+            }
+
+            int typeWidth = Math.Max(82, (int)(availableWidth * 0.14M));
+            int saleNoWidth = Math.Max(94, (int)(availableWidth * 0.17M));
+            int dateWidth = Math.Max(156, (int)(availableWidth * 0.27M));
+            int amountWidth = Math.Max(88, (int)(availableWidth * 0.14M));
+            int paymentWidth = Math.Max(84, (int)(availableWidth * 0.14M));
+            int cashierWidth = Math.Max(98, availableWidth - typeWidth - saleNoWidth - dateWidth - amountWidth - paymentWidth - 5);
+
+            dgvRecentSales.Columns[0].Width = typeWidth;
+            dgvRecentSales.Columns[1].Width = saleNoWidth;
+            dgvRecentSales.Columns[2].Width = dateWidth;
+            dgvRecentSales.Columns[3].Width = amountWidth;
+            dgvRecentSales.Columns[4].Width = paymentWidth;
+            dgvRecentSales.Columns[5].Width = cashierWidth;
+        }
+
+        private static DataGridViewTextBoxColumn CreateTextColumn(
+            string propertyName,
+            string headerText,
+            float fillWeight,
+            string format,
+            DataGridViewContentAlignment alignment = DataGridViewContentAlignment.MiddleLeft,
+            int minimumWidth = 70)
         {
             DataGridViewTextBoxColumn column = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = propertyName,
                 HeaderText = headerText,
-                FillWeight = fillWeight
+                FillWeight = fillWeight,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                MinimumWidth = minimumWidth,
+                SortMode = DataGridViewColumnSortMode.NotSortable
             };
 
             if (!string.IsNullOrWhiteSpace(format))
@@ -791,26 +997,61 @@ namespace ShopPOS
                 column.DefaultCellStyle.Format = format;
             }
 
+            column.DefaultCellStyle.Alignment = alignment;
+
             return column;
         }
 
         private static void ApplyGridStyle(DataGridView grid)
         {
+            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+            grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            grid.BackgroundColor = Color.White;
+            grid.BorderStyle = BorderStyle.None;
+            grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            grid.EnableHeadersVisualStyles = false;
+            grid.GridColor = Color.FromArgb(229, 233, 239);
+            grid.RowHeadersVisible = false;
+            grid.RowTemplate.Height = 34;
+            grid.AllowUserToResizeRows = false;
+            grid.AllowUserToResizeColumns = false;
+            grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            grid.MultiSelect = false;
+            grid.ReadOnly = true;
+            grid.ScrollBars = ScrollBars.Vertical;
             grid.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
             {
                 Alignment = DataGridViewContentAlignment.MiddleLeft,
-                BackColor = Color.FromArgb(243, 246, 251),
+                BackColor = Color.FromArgb(230, 241, 252),
                 Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(42, 54, 68),
-                SelectionBackColor = Color.FromArgb(243, 246, 251),
+                Padding = new Padding(8, 0, 8, 0),
+                SelectionBackColor = Color.FromArgb(230, 241, 252),
                 SelectionForeColor = Color.FromArgb(42, 54, 68),
                 WrapMode = DataGridViewTriState.True
             };
-            grid.ColumnHeadersHeight = 36;
+            grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            grid.ColumnHeadersHeight = 38;
+            grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             grid.DefaultCellStyle = new DataGridViewCellStyle
             {
                 BackColor = Color.White,
                 Font = new Font("Segoe UI", 9F),
+                ForeColor = Color.FromArgb(45, 52, 61),
+                Padding = new Padding(6, 0, 6, 0),
+                SelectionBackColor = Color.FromArgb(233, 240, 255),
+                SelectionForeColor = Color.Black
+            };
+            grid.AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
+            {
+                BackColor = Color.FromArgb(249, 251, 254),
+                ForeColor = Color.FromArgb(45, 52, 61),
+                SelectionBackColor = Color.FromArgb(233, 240, 255),
+                SelectionForeColor = Color.Black
+            };
+            grid.RowsDefaultCellStyle = new DataGridViewCellStyle
+            {
+                BackColor = Color.White,
                 ForeColor = Color.FromArgb(45, 52, 61),
                 SelectionBackColor = Color.FromArgb(233, 240, 255),
                 SelectionForeColor = Color.Black
@@ -819,6 +1060,8 @@ namespace ShopPOS
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            EnsureDashboardGridConfiguration();
+
             lblWelcome.Text = ShopBranding.ShopName;
             lblRole.Text = string.IsNullOrWhiteSpace(_session.RoleName)
                 ? "Central dashboard for grocery sales, services, stock, vendors, and accounts."
@@ -853,7 +1096,7 @@ namespace ShopPOS
                 return;
             }
 
-            int availableWidth = scrollHost.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - 4;
+            int availableWidth = scrollHost.ClientSize.Width - 24;
             dashboardCanvas.Width = Math.Max(1180, availableWidth);
         }
 
@@ -1017,6 +1260,7 @@ namespace ShopPOS
             dgvLowStock.DataSource = metrics.LowStockItems;
             dgvRecentSales.DataSource = null;
             dgvRecentSales.DataSource = metrics.RecentSales;
+            FitDashboardGridColumns();
         }
 
         private string BuildStatusText(DashboardMetrics metrics)
@@ -1100,6 +1344,7 @@ namespace ShopPOS
             });
             metrics.RecentSales.Add(new RecentSaleItem
             {
+                EntryType = "Grocery",
                 SaleNo = "SAL-1042",
                 SaleDate = DateTime.Now.AddMinutes(-18),
                 GrandTotal = 1850M,
@@ -1108,10 +1353,11 @@ namespace ShopPOS
             });
             metrics.RecentSales.Add(new RecentSaleItem
             {
-                SaleNo = "SAL-1041",
-                SaleDate = DateTime.Now.AddHours(-1),
-                GrandTotal = 920M,
-                PaymentMethod = "Credit",
+                EntryType = "Service",
+                SaleNo = "SRV-0418",
+                SaleDate = DateTime.Now.AddMinutes(-42),
+                GrandTotal = 2500M,
+                PaymentMethod = "JazzCash",
                 Cashier = "Designer"
             });
             return metrics;

@@ -83,6 +83,7 @@ namespace ShopPOS.Services
             using (MySqlConnection connection = DatabaseConnectionFactory.CreateOpenConnection())
             {
                 EnsureSystemAccounts(connection, null);
+                EnsureServiceLiabilityEntries(connection, null);
 
                 using (MySqlCommand command = connection.CreateCommand())
                 {
@@ -130,6 +131,7 @@ namespace ShopPOS.Services
             using (MySqlConnection connection = DatabaseConnectionFactory.CreateOpenConnection())
             {
                 EnsureSystemAccounts(connection, null);
+                EnsureServiceLiabilityEntries(connection, null);
 
                 using (MySqlCommand command = connection.CreateCommand())
                 {
@@ -196,6 +198,7 @@ namespace ShopPOS.Services
             using (MySqlConnection connection = DatabaseConnectionFactory.CreateOpenConnection())
             {
                 EnsureSystemAccounts(connection, null);
+                EnsureServiceLiabilityEntries(connection, null);
 
                 using (MySqlCommand command = connection.CreateCommand())
                 {
@@ -258,9 +261,13 @@ namespace ShopPOS.Services
             List<LedgerVoucherItem> items = new List<LedgerVoucherItem>();
 
             using (MySqlConnection connection = DatabaseConnectionFactory.CreateOpenConnection())
-            using (MySqlCommand command = connection.CreateCommand())
             {
-                command.CommandText = @"
+                EnsureSystemAccounts(connection, null);
+                EnsureServiceLiabilityEntries(connection, null);
+
+                using (MySqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
                     SELECT
                         t.txn_date,
                         t.voucher_type,
@@ -275,19 +282,20 @@ namespace ShopPOS.Services
                     ORDER BY t.txn_date DESC, t.ledger_txn_id DESC
                     LIMIT 200;";
 
-                using (MySqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
+                    using (MySqlDataReader reader = command.ExecuteReader())
                     {
-                        LedgerVoucherItem item = new LedgerVoucherItem();
-                        item.TransactionDate = Convert.ToDateTime(reader["txn_date"]);
-                        item.VoucherType = Convert.ToString(reader["voucher_type"]);
-                        item.ReferenceTable = Convert.ToString(reader["reference_table"]);
-                        item.ReferenceId = reader["reference_id"] == DBNull.Value ? (long?)null : Convert.ToInt64(reader["reference_id"]);
-                        item.ReferenceLabel = FormatReferenceLabel(item.ReferenceTable, item.ReferenceId);
-                        item.TotalAmount = Math.Max(Convert.ToDecimal(reader["debit_total"]), Convert.ToDecimal(reader["credit_total"]));
-                        item.Remarks = Convert.ToString(reader["remarks"]);
-                        items.Add(item);
+                        while (reader.Read())
+                        {
+                            LedgerVoucherItem item = new LedgerVoucherItem();
+                            item.TransactionDate = Convert.ToDateTime(reader["txn_date"]);
+                            item.VoucherType = Convert.ToString(reader["voucher_type"]);
+                            item.ReferenceTable = Convert.ToString(reader["reference_table"]);
+                            item.ReferenceId = reader["reference_id"] == DBNull.Value ? (long?)null : Convert.ToInt64(reader["reference_id"]);
+                            item.ReferenceLabel = FormatReferenceLabel(item.ReferenceTable, item.ReferenceId);
+                            item.TotalAmount = Math.Max(Convert.ToDecimal(reader["debit_total"]), Convert.ToDecimal(reader["credit_total"]));
+                            item.Remarks = Convert.ToString(reader["remarks"]);
+                            items.Add(item);
+                        }
                     }
                 }
             }
@@ -300,9 +308,13 @@ namespace ShopPOS.Services
             List<LedgerVoucherItem> items = new List<LedgerVoucherItem>();
 
             using (MySqlConnection connection = DatabaseConnectionFactory.CreateOpenConnection())
-            using (MySqlCommand command = connection.CreateCommand())
             {
-                command.CommandText = @"
+                EnsureSystemAccounts(connection, null);
+                EnsureServiceLiabilityEntries(connection, null);
+
+                using (MySqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
                     SELECT
                         t.txn_date,
                         t.voucher_type,
@@ -318,22 +330,23 @@ namespace ShopPOS.Services
                     GROUP BY t.ledger_txn_id, t.txn_date, t.voucher_type, t.reference_table, t.reference_id, t.remarks
                     ORDER BY t.txn_date DESC, t.ledger_txn_id DESC
                     LIMIT 200;";
-                command.Parameters.AddWithValue("@fromDate", fromDate.Date);
-                command.Parameters.AddWithValue("@toDate", toDate.Date.AddDays(1));
+                    command.Parameters.AddWithValue("@fromDate", fromDate.Date);
+                    command.Parameters.AddWithValue("@toDate", toDate.Date.AddDays(1));
 
-                using (MySqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
+                    using (MySqlDataReader reader = command.ExecuteReader())
                     {
-                        LedgerVoucherItem item = new LedgerVoucherItem();
-                        item.TransactionDate = Convert.ToDateTime(reader["txn_date"]);
-                        item.VoucherType = Convert.ToString(reader["voucher_type"]);
-                        item.ReferenceTable = Convert.ToString(reader["reference_table"]);
-                        item.ReferenceId = reader["reference_id"] == DBNull.Value ? (long?)null : Convert.ToInt64(reader["reference_id"]);
-                        item.ReferenceLabel = FormatReferenceLabel(item.ReferenceTable, item.ReferenceId);
-                        item.TotalAmount = Math.Max(Convert.ToDecimal(reader["debit_total"]), Convert.ToDecimal(reader["credit_total"]));
-                        item.Remarks = Convert.ToString(reader["remarks"]);
-                        items.Add(item);
+                        while (reader.Read())
+                        {
+                            LedgerVoucherItem item = new LedgerVoucherItem();
+                            item.TransactionDate = Convert.ToDateTime(reader["txn_date"]);
+                            item.VoucherType = Convert.ToString(reader["voucher_type"]);
+                            item.ReferenceTable = Convert.ToString(reader["reference_table"]);
+                            item.ReferenceId = reader["reference_id"] == DBNull.Value ? (long?)null : Convert.ToInt64(reader["reference_id"]);
+                            item.ReferenceLabel = FormatReferenceLabel(item.ReferenceTable, item.ReferenceId);
+                            item.TotalAmount = Math.Max(Convert.ToDecimal(reader["debit_total"]), Convert.ToDecimal(reader["credit_total"]));
+                            item.Remarks = Convert.ToString(reader["remarks"]);
+                            items.Add(item);
+                        }
                     }
                 }
             }
@@ -352,6 +365,123 @@ namespace ShopPOS.Services
             EnsureNamedAccount(connection, transaction, "Customer Receivable", "Asset", "None", null);
             EnsureNamedAccount(connection, transaction, "Supplier Payable", "Liability", "None", null);
             EnsureWalletLinkedAccounts(connection, transaction);
+        }
+
+        private static void EnsureServiceLiabilityEntries(MySqlConnection connection, MySqlTransaction transaction)
+        {
+            ServiceCenterService.EnsureServiceRefundColumns(connection);
+
+            List<ServiceLiabilitySyncItem> pendingItems = new List<ServiceLiabilitySyncItem>();
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.Transaction = transaction;
+                command.CommandText = @"
+                    SELECT
+                        sth.service_txn_id,
+                        sth.txn_date,
+                        sth.amount,
+                        sth.commission_earned,
+                        sth.remarks,
+                        COALESCE(NULLIF(sth.created_by, 0), 1) AS created_by,
+                        st.service_name,
+                        st.provider_name
+                    FROM service_transaction_header sth
+                    INNER JOIN service_types st ON st.service_type_id = sth.service_type_id
+                    LEFT JOIN ledger_transactions pending_voucher
+                        ON pending_voucher.reference_table = 'service_transaction_header'
+                       AND pending_voucher.reference_id = sth.service_txn_id
+                       AND pending_voucher.voucher_type = 'Service Pending'
+                    WHERE sth.status = 'Pending'
+                      AND IFNULL(sth.is_refunded, 0) = 0
+                      AND pending_voucher.ledger_txn_id IS NULL;";
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        pendingItems.Add(new ServiceLiabilitySyncItem
+                        {
+                            ServiceTransactionId = Convert.ToInt64(reader["service_txn_id"]),
+                            TransactionDate = Convert.ToDateTime(reader["txn_date"]),
+                            Amount = Convert.ToDecimal(reader["amount"]),
+                            Commission = Convert.ToDecimal(reader["commission_earned"]),
+                            Remarks = Convert.ToString(reader["remarks"]),
+                            UserId = Convert.ToInt32(reader["created_by"]),
+                            ServiceName = Convert.ToString(reader["service_name"]),
+                            ProviderName = Convert.ToString(reader["provider_name"])
+                        });
+                    }
+                }
+            }
+
+            for (int i = 0; i < pendingItems.Count; i++)
+            {
+                ServiceLiabilitySyncItem item = pendingItems[i];
+                if (ServiceCenterService.IsWithdrawalService(new ServiceTypeRecord { ServiceName = item.ServiceName, ProviderName = item.ProviderName }))
+                {
+                    continue;
+                }
+
+                PostPendingServiceEntry(connection, transaction, item.ServiceTransactionId, item.TransactionDate, item.Amount, item.Commission, item.Remarks, item.UserId);
+            }
+
+            List<ServiceLiabilitySyncItem> completedSettlementItems = new List<ServiceLiabilitySyncItem>();
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.Transaction = transaction;
+                command.CommandText = @"
+                    SELECT
+                        sth.service_txn_id,
+                        sth.txn_date,
+                        sth.amount,
+                        sth.commission_earned,
+                        sth.remarks,
+                        COALESCE(NULLIF(sth.created_by, 0), 1) AS created_by,
+                        st.service_name,
+                        st.provider_name
+                    FROM service_transaction_header sth
+                    INNER JOIN service_types st ON st.service_type_id = sth.service_type_id
+                    INNER JOIN ledger_transactions settlement_voucher
+                        ON settlement_voucher.reference_table = 'service_transaction_header'
+                       AND settlement_voucher.reference_id = sth.service_txn_id
+                       AND settlement_voucher.voucher_type = 'Service Settlement'
+                    LEFT JOIN ledger_transactions pending_voucher
+                        ON pending_voucher.reference_table = 'service_transaction_header'
+                       AND pending_voucher.reference_id = sth.service_txn_id
+                       AND pending_voucher.voucher_type = 'Service Pending'
+                    WHERE sth.status = 'Completed'
+                      AND IFNULL(sth.is_refunded, 0) = 0
+                      AND pending_voucher.ledger_txn_id IS NULL;";
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        completedSettlementItems.Add(new ServiceLiabilitySyncItem
+                        {
+                            ServiceTransactionId = Convert.ToInt64(reader["service_txn_id"]),
+                            TransactionDate = Convert.ToDateTime(reader["txn_date"]),
+                            Amount = Convert.ToDecimal(reader["amount"]),
+                            Commission = Convert.ToDecimal(reader["commission_earned"]),
+                            Remarks = Convert.ToString(reader["remarks"]),
+                            UserId = Convert.ToInt32(reader["created_by"]),
+                            ServiceName = Convert.ToString(reader["service_name"]),
+                            ProviderName = Convert.ToString(reader["provider_name"])
+                        });
+                    }
+                }
+            }
+
+            for (int i = 0; i < completedSettlementItems.Count; i++)
+            {
+                ServiceLiabilitySyncItem item = completedSettlementItems[i];
+                if (ServiceCenterService.IsWithdrawalService(new ServiceTypeRecord { ServiceName = item.ServiceName, ProviderName = item.ProviderName }))
+                {
+                    continue;
+                }
+
+                PostPendingServiceEntry(connection, transaction, item.ServiceTransactionId, item.TransactionDate, item.Amount, item.Commission, item.Remarks, item.UserId);
+            }
         }
 
         public static void PostSaleEntry(MySqlConnection connection, MySqlTransaction transaction, long saleId, decimal grandTotal, decimal totalCost, decimal paidAmount, int? walletAccountId, string remarks, int userId)
@@ -438,7 +568,7 @@ namespace ShopPOS.Services
             InsertVoucher(connection, transaction, DateTime.Now, "Expense", "expenses", expenseId, remarks, userId, lines);
         }
 
-        public static void PostServiceEntry(MySqlConnection connection, MySqlTransaction transaction, long serviceTxnId, int walletAccountId, decimal grossAmount, decimal commissionAmount, string remarks, int userId)
+        public static void PostServiceEntry(MySqlConnection connection, MySqlTransaction transaction, long serviceTxnId, DateTime transactionDate, int walletAccountId, decimal grossAmount, decimal commissionAmount, string remarks, int userId)
         {
             EnsureSystemAccounts(connection, transaction);
             int cashAccountId = GetCashAccountId(connection, transaction);
@@ -449,10 +579,10 @@ namespace ShopPOS.Services
             lines.Add(new LedgerLine { AccountId = cashAccountId, Debit = grossAmount + commissionAmount, Description = "Cash received from service customer" });
             lines.Add(new LedgerLine { AccountId = walletLedgerAccountId, Credit = grossAmount, Description = "Wallet used for service" });
             lines.Add(new LedgerLine { AccountId = serviceIncomeId, Credit = commissionAmount, Description = "Service commission income" });
-            InsertVoucher(connection, transaction, DateTime.Now, "Service", "service_transaction_header", serviceTxnId, remarks, userId, lines);
+            InsertVoucher(connection, transaction, transactionDate, "Service", "service_transaction_header", serviceTxnId, remarks, userId, lines);
         }
 
-        public static void PostWithdrawalServiceEntry(MySqlConnection connection, MySqlTransaction transaction, long serviceTxnId, int walletAccountId, decimal grossAmount, decimal commissionAmount, string remarks, int userId)
+        public static void PostWithdrawalServiceEntry(MySqlConnection connection, MySqlTransaction transaction, long serviceTxnId, DateTime transactionDate, int walletAccountId, decimal grossAmount, decimal commissionAmount, string remarks, int userId)
         {
             EnsureSystemAccounts(connection, transaction);
             int cashAccountId = GetCashAccountId(connection, transaction);
@@ -464,10 +594,10 @@ namespace ShopPOS.Services
             lines.Add(new LedgerLine { AccountId = walletLedgerAccountId, Debit = receivedAmount, Description = "Incoming transfer received for withdrawal" });
             lines.Add(new LedgerLine { AccountId = cashAccountId, Credit = grossAmount, Description = "Cash paid out to withdrawal customer" });
             lines.Add(new LedgerLine { AccountId = serviceIncomeId, Credit = commissionAmount, Description = "Withdrawal commission income" });
-            InsertVoucher(connection, transaction, DateTime.Now, "Withdrawal", "service_transaction_header", serviceTxnId, remarks, userId, lines);
+            InsertVoucher(connection, transaction, transactionDate, "Withdrawal", "service_transaction_header", serviceTxnId, remarks, userId, lines);
         }
 
-        public static void PostPendingServiceEntry(MySqlConnection connection, MySqlTransaction transaction, long serviceTxnId, decimal grossAmount, decimal commissionAmount, string remarks, int userId)
+        public static void PostPendingServiceEntry(MySqlConnection connection, MySqlTransaction transaction, long serviceTxnId, DateTime transactionDate, decimal grossAmount, decimal commissionAmount, string remarks, int userId)
         {
             EnsureSystemAccounts(connection, transaction);
             int cashAccountId = GetCashAccountId(connection, transaction);
@@ -478,10 +608,10 @@ namespace ShopPOS.Services
             lines.Add(new LedgerLine { AccountId = cashAccountId, Debit = grossAmount + commissionAmount, Description = "Cash received for pending service" });
             lines.Add(new LedgerLine { AccountId = pendingLiabilityId, Credit = grossAmount, Description = "Pending bill liability" });
             lines.Add(new LedgerLine { AccountId = serviceIncomeId, Credit = commissionAmount, Description = "Commission received on pending service" });
-            InsertVoucher(connection, transaction, DateTime.Now, "Service Pending", "service_transaction_header", serviceTxnId, remarks, userId, lines);
+            InsertVoucher(connection, transaction, transactionDate, "Service Pending", "service_transaction_header", serviceTxnId, remarks, userId, lines);
         }
 
-        public static void PostPendingWithdrawalEntry(MySqlConnection connection, MySqlTransaction transaction, long serviceTxnId, int walletAccountId, decimal grossAmount, decimal commissionAmount, string remarks, int userId)
+        public static void PostPendingWithdrawalEntry(MySqlConnection connection, MySqlTransaction transaction, long serviceTxnId, DateTime transactionDate, int walletAccountId, decimal grossAmount, decimal commissionAmount, string remarks, int userId)
         {
             EnsureSystemAccounts(connection, transaction);
             int walletLedgerAccountId = GetWalletLinkedAccountId(connection, transaction, walletAccountId);
@@ -493,7 +623,7 @@ namespace ShopPOS.Services
             lines.Add(new LedgerLine { AccountId = walletLedgerAccountId, Debit = receivedAmount, Description = "Incoming transfer received for pending withdrawal" });
             lines.Add(new LedgerLine { AccountId = pendingLiabilityId, Credit = grossAmount, Description = "Pending withdrawal payable" });
             lines.Add(new LedgerLine { AccountId = serviceIncomeId, Credit = commissionAmount, Description = "Withdrawal commission income" });
-            InsertVoucher(connection, transaction, DateTime.Now, "Withdrawal Pending", "service_transaction_header", serviceTxnId, remarks, userId, lines);
+            InsertVoucher(connection, transaction, transactionDate, "Withdrawal Pending", "service_transaction_header", serviceTxnId, remarks, userId, lines);
         }
 
         public static void PostPendingServiceSettlementEntry(MySqlConnection connection, MySqlTransaction transaction, long serviceTxnId, int walletAccountId, decimal grossAmount, string remarks, int userId)
@@ -532,6 +662,20 @@ namespace ShopPOS.Services
             lines.Add(new LedgerLine { AccountId = walletLedgerAccountId, Debit = grossAmount, Description = "Wallet restored from service refund" });
             lines.Add(new LedgerLine { AccountId = serviceIncomeId, Debit = commissionAmount, Description = "Service income reversed" });
             InsertVoucher(connection, transaction, DateTime.Now, "Service Refund", "service_transaction_header", serviceTxnId, remarks, userId, lines);
+        }
+
+        public static void PostPendingServiceRefundEntry(MySqlConnection connection, MySqlTransaction transaction, long serviceTxnId, decimal grossAmount, decimal commissionAmount, string remarks, int userId)
+        {
+            EnsureSystemAccounts(connection, transaction);
+            int cashAccountId = GetCashAccountId(connection, transaction);
+            int serviceIncomeId = GetAccountId(connection, transaction, "Service Income");
+            int pendingLiabilityId = GetAccountId(connection, transaction, "Service Pending Liability");
+
+            List<LedgerLine> lines = new List<LedgerLine>();
+            lines.Add(new LedgerLine { AccountId = cashAccountId, Credit = grossAmount + commissionAmount, Description = "Cash returned for pending service refund" });
+            lines.Add(new LedgerLine { AccountId = pendingLiabilityId, Debit = grossAmount, Description = "Pending bill liability reversed" });
+            lines.Add(new LedgerLine { AccountId = serviceIncomeId, Debit = commissionAmount, Description = "Pending service commission reversed" });
+            InsertVoucher(connection, transaction, DateTime.Now, "Service Pending Refund", "service_transaction_header", serviceTxnId, remarks, userId, lines);
         }
 
         public static void PostWithdrawalServiceRefundEntry(MySqlConnection connection, MySqlTransaction transaction, long serviceTxnId, int walletAccountId, decimal grossAmount, decimal commissionAmount, string remarks, int userId)
@@ -912,6 +1056,18 @@ namespace ShopPOS.Services
             public decimal Debit { get; set; }
             public decimal Credit { get; set; }
             public string Description { get; set; }
+        }
+
+        private class ServiceLiabilitySyncItem
+        {
+            public long ServiceTransactionId { get; set; }
+            public DateTime TransactionDate { get; set; }
+            public decimal Amount { get; set; }
+            public decimal Commission { get; set; }
+            public string Remarks { get; set; }
+            public int UserId { get; set; }
+            public string ServiceName { get; set; }
+            public string ProviderName { get; set; }
         }
     }
 }

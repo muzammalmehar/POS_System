@@ -15,6 +15,7 @@ namespace ShopPOS.Services
             using (MySqlConnection connection = DatabaseConnectionFactory.CreateOpenConnection())
             {
                 EnsureExpirySchema(connection, null);
+                SyncEditableBatchExpiry(connection, null, null);
 
                 using (MySqlCommand command = connection.CreateCommand())
                 {
@@ -78,6 +79,7 @@ namespace ShopPOS.Services
             using (MySqlConnection connection = DatabaseConnectionFactory.CreateOpenConnection())
             {
                 EnsureExpirySchema(connection, null);
+                SyncEditableBatchExpiry(connection, null, null);
 
                 using (MySqlCommand command = connection.CreateCommand())
                 {
@@ -366,6 +368,45 @@ namespace ShopPOS.Services
                             FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
                             ON DELETE SET NULL ON UPDATE CASCADE
                     ) ENGINE=InnoDB;";
+                command.ExecuteNonQuery();
+            }
+        }
+
+        internal static void SyncEditableBatchExpiry(MySqlConnection connection, MySqlTransaction transaction, int? productId)
+        {
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.Transaction = transaction;
+                command.CommandText = @"
+                    UPDATE product_stock_batches b
+                    INNER JOIN products p ON p.product_id = b.product_id
+                    SET
+                        b.expiry_date = p.default_expiry_date,
+                        b.status = CASE
+                            WHEN b.remaining_qty <= 0 THEN 'Consumed'
+                            WHEN p.default_expiry_date IS NOT NULL AND p.default_expiry_date < CURDATE() THEN 'Expired'
+                            ELSE 'Active'
+                        END,
+                        b.updated_at = NOW()
+                    WHERE IFNULL(p.track_expiry, 0) = 1
+                      AND b.remaining_qty > 0
+                      AND (@productId IS NULL OR b.product_id = @productId)
+                      AND b.purchase_id IS NULL
+                      AND b.purchase_detail_id IS NULL
+                      AND
+                      (
+                          b.batch_no IS NULL OR
+                          b.batch_no LIKE 'LEGACY-%' OR
+                          b.batch_no LIKE 'OPEN-%' OR
+                          b.batch_no LIKE 'ADJ-%'
+                      )
+                      AND
+                      (
+                          NOT (b.expiry_date <=> p.default_expiry_date) OR
+                          (b.status = 'Expired' AND (p.default_expiry_date IS NULL OR p.default_expiry_date >= CURDATE())) OR
+                          (b.status = 'Active' AND p.default_expiry_date IS NOT NULL AND p.default_expiry_date < CURDATE())
+                      );";
+                command.Parameters.AddWithValue("@productId", (object)productId ?? DBNull.Value);
                 command.ExecuteNonQuery();
             }
         }

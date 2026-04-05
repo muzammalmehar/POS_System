@@ -167,15 +167,40 @@ namespace ShopPOS.Services
             using (MySqlCommand command = connection.CreateCommand())
             {
                 command.CommandText = @"
-                    SELECT sh.sale_no,
-                           sh.sale_date,
-                           sh.grand_total,
-                           sh.payment_method,
-                           u.full_name
-                    FROM sale_header sh
-                    INNER JOIN users u ON u.user_id = sh.created_by
-                    WHERE IFNULL(sh.is_refunded, 0) = 0
-                    ORDER BY sh.sale_date DESC
+                    SELECT recent_entries.entry_type,
+                           recent_entries.sale_no,
+                           recent_entries.sale_date,
+                           recent_entries.grand_total,
+                           recent_entries.payment_method,
+                           recent_entries.cashier
+                    FROM
+                    (
+                        SELECT
+                            'Grocery' AS entry_type,
+                            sh.sale_no,
+                            sh.sale_date,
+                            sh.grand_total,
+                            COALESCE(NULLIF(TRIM(sh.payment_method), ''), 'Cash') AS payment_method,
+                            COALESCE(NULLIF(TRIM(u.full_name), ''), 'System') AS cashier
+                        FROM sale_header sh
+                        LEFT JOIN users u ON u.user_id = sh.created_by
+                        WHERE IFNULL(sh.is_refunded, 0) = 0
+
+                        UNION ALL
+
+                        SELECT
+                            'Service' AS entry_type,
+                            COALESCE(NULLIF(TRIM(sth.txn_no), ''), CONCAT('SRV-', sth.service_txn_id)) AS sale_no,
+                            sth.txn_date AS sale_date,
+                            sth.amount AS grand_total,
+                            COALESCE(NULLIF(TRIM(sth.payment_method), ''), 'N/A') AS payment_method,
+                            COALESCE(NULLIF(TRIM(u.full_name), ''), 'System') AS cashier
+                        FROM service_transaction_header sth
+                        LEFT JOIN users u ON u.user_id = sth.created_by
+                        WHERE IFNULL(sth.is_refunded, 0) = 0
+                          AND sth.status = 'Completed'
+                    ) AS recent_entries
+                    ORDER BY recent_entries.sale_date DESC
                     LIMIT 8;";
 
                 using (MySqlDataReader reader = command.ExecuteReader())
@@ -183,11 +208,12 @@ namespace ShopPOS.Services
                     while (reader.Read())
                     {
                         RecentSaleItem item = new RecentSaleItem();
+                        item.EntryType = Convert.ToString(reader["entry_type"]);
                         item.SaleNo = Convert.ToString(reader["sale_no"]);
                         item.SaleDate = Convert.ToDateTime(reader["sale_date"]);
                         item.GrandTotal = Convert.ToDecimal(reader["grand_total"]);
                         item.PaymentMethod = Convert.ToString(reader["payment_method"]);
-                        item.Cashier = Convert.ToString(reader["full_name"]);
+                        item.Cashier = Convert.ToString(reader["cashier"]);
                         metrics.RecentSales.Add(item);
                     }
                 }

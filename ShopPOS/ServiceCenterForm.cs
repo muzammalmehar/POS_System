@@ -149,6 +149,7 @@ namespace ShopPOS
                 request.PaymentMethod = Convert.ToString(cboPaymentMethod.SelectedItem);
                 request.CustomerAccountNumber = txtCustomerAccountNo.Text;
                 request.ExternalTransactionId = txtTransactionId.Text;
+                request.IsExternalTransactionIdNotApplicable = chkTransactionIdNotApplicable.Checked;
                 request.Amount = nudAmount.Value;
                 request.ServiceCharge = nudCommission.Value;
                 request.Status = Convert.ToString(cboStatus.SelectedItem);
@@ -257,6 +258,7 @@ namespace ShopPOS
         private void chkNextDue_CheckedChanged(object sender, EventArgs e) { ApplyWalkInMode(); }
         private void cboPaymentMethod_SelectedIndexChanged(object sender, EventArgs e) { UpdateServiceModeLabels(); }
         private void cboBillCategory_SelectedIndexChanged(object sender, EventArgs e) { UpdateServiceSummary(); }
+        private void chkTransactionIdNotApplicable_CheckedChanged(object sender, EventArgs e) { UpdateTransactionIdState(true); }
 
         private void UpdateCommission()
         {
@@ -423,6 +425,22 @@ namespace ShopPOS
             }
         }
 
+        private void UpdateTransactionIdState(bool clearOnDisable)
+        {
+            if (txtTransactionId == null || chkTransactionIdNotApplicable == null)
+            {
+                return;
+            }
+
+            bool isNotApplicable = chkTransactionIdNotApplicable.Checked;
+            txtTransactionId.Enabled = !isNotApplicable;
+
+            if (isNotApplicable && clearOnDisable)
+            {
+                txtTransactionId.Clear();
+            }
+        }
+
         private ServiceCustomerProfileRecord BuildProfile()
         {
             ServiceTypeRecord type = cboServiceType.SelectedItem as ServiceTypeRecord;
@@ -463,6 +481,7 @@ namespace ShopPOS
             dtpNextDue.Enabled = false;
             chkWalkInCustomer.Checked = true;
             chkSaveProfile.Checked = true;
+            chkTransactionIdNotApplicable.Checked = true;
             _manualCommissionOverride = false;
             SelectBillCategory(null);
             if (cboPaymentMethod.Items.Count > 0) cboPaymentMethod.SelectedItem = "Cash";
@@ -484,6 +503,7 @@ namespace ShopPOS
             txtReference.Text = request.ReferenceNumber;
             txtCustomerAccountNo.Text = request.CustomerAccountNumber;
             txtTransactionId.Text = request.ExternalTransactionId;
+            chkTransactionIdNotApplicable.Checked = request.IsExternalTransactionIdNotApplicable;
             dtpTxnDate.Value = request.TransactionDate;
             nudAmount.Value = request.Amount;
             _isCommissionAutoUpdating = true;
@@ -507,6 +527,7 @@ namespace ShopPOS
             ApplyWalkInMode();
             UpdateServiceModeLabels();
             UpdateBillCategoryState();
+            UpdateTransactionIdState(false);
             lblProfileSummary.Text = chkWalkInCustomer.Checked ? "Editing a walk-in service entry" : "Editing a named customer service entry";
             lblMode.Text = string.Format("Edit Service: {0}", request.CustomerName);
             UpdateServiceSummary();
@@ -651,6 +672,11 @@ namespace ShopPOS
                 lblTransactionIdTitle.Text = isWithdrawal ? "Incoming Transaction ID" : "Transaction ID";
             }
 
+            if (chkTransactionIdNotApplicable != null)
+            {
+                chkTransactionIdNotApplicable.Text = "Not Applicable";
+            }
+
             if (lblCommissionTitle != null)
             {
                 lblCommissionTitle.Text = isWithdrawal ? "Withdrawal Charge" : "Commission";
@@ -662,6 +688,7 @@ namespace ShopPOS
             }
 
             UpdatePaymentAccountState();
+            UpdateTransactionIdState(true);
         }
 
         private string GetSelectedBillCategory()

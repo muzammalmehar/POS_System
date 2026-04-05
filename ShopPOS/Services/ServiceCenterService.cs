@@ -61,6 +61,7 @@ namespace ShopPOS.Services
                     request.PaymentMethod = Convert.ToString(reader["payment_method"]);
                     request.CustomerAccountNumber = Convert.ToString(reader["customer_account_no"]);
                     request.ExternalTransactionId = Convert.ToString(reader["external_transaction_id"]);
+                    request.IsExternalTransactionIdNotApplicable = string.IsNullOrWhiteSpace(request.ExternalTransactionId);
                     request.Amount = Convert.ToDecimal(reader["amount"]);
                     request.ServiceCharge = Convert.ToDecimal(reader["commission_earned"]);
                     request.Status = Convert.ToString(reader["status"]);
@@ -514,7 +515,7 @@ namespace ShopPOS.Services
                             if (isWithdrawalService)
                             {
                                 AdjustWalletBalance(connection, transaction, existing.WalletAccountId, existing.Amount + existing.ServiceCharge);
-                                AccountingService.PostWithdrawalServiceEntry(connection, transaction, serviceTransactionId, existing.WalletAccountId, existing.Amount, existing.ServiceCharge, remarks, userId);
+                                AccountingService.PostWithdrawalServiceEntry(connection, transaction, serviceTransactionId, existing.TransactionDate, existing.WalletAccountId, existing.Amount, existing.ServiceCharge, remarks, userId);
                             }
                             else if (string.Equals(oldStatus, "Pending", StringComparison.OrdinalIgnoreCase))
                             {
@@ -524,12 +525,12 @@ namespace ShopPOS.Services
                             else
                             {
                                 AdjustWalletBalance(connection, transaction, existing.WalletAccountId, -existing.Amount);
-                                AccountingService.PostServiceEntry(connection, transaction, serviceTransactionId, existing.WalletAccountId, existing.Amount, existing.ServiceCharge, remarks, userId);
+                                AccountingService.PostServiceEntry(connection, transaction, serviceTransactionId, existing.TransactionDate, existing.WalletAccountId, existing.Amount, existing.ServiceCharge, remarks, userId);
                             }
                         }
                         else if (!isWithdrawalService && string.Equals(newStatus, "Pending", StringComparison.OrdinalIgnoreCase))
                         {
-                            AccountingService.PostPendingServiceEntry(connection, transaction, serviceTransactionId, existing.Amount, existing.ServiceCharge, remarks, userId);
+                            AccountingService.PostPendingServiceEntry(connection, transaction, serviceTransactionId, existing.TransactionDate, existing.Amount, existing.ServiceCharge, remarks, userId);
                         }
 
                         using (MySqlCommand command = connection.CreateCommand())
@@ -660,7 +661,7 @@ namespace ShopPOS.Services
                             if (IsWithdrawalService(serviceType))
                             {
                                 AdjustWalletBalance(connection, transaction, request.WalletAccountId, request.Amount + commission);
-                                AccountingService.PostWithdrawalServiceEntry(connection, transaction, serviceTxnId, request.WalletAccountId, request.Amount, commission, request.Remarks, request.UserId);
+                                AccountingService.PostWithdrawalServiceEntry(connection, transaction, serviceTxnId, request.TransactionDate, request.WalletAccountId, request.Amount, commission, request.Remarks, request.UserId);
                             }
                             else
                             {
@@ -669,12 +670,25 @@ namespace ShopPOS.Services
                                     connection,
                                     transaction,
                                     serviceTxnId,
+                                    request.TransactionDate,
                                     request.WalletAccountId,
                                     request.Amount,
                                     commission,
                                     request.Remarks,
                                     request.UserId);
                             }
+                        }
+                        else if (!IsWithdrawalService(serviceType) && request.Status == "Pending")
+                        {
+                            AccountingService.PostPendingServiceEntry(
+                                connection,
+                                transaction,
+                                serviceTxnId,
+                                request.TransactionDate,
+                                request.Amount,
+                                commission,
+                                request.Remarks,
+                                request.UserId);
                         }
 
                         if (request.SaveProfile || request.ProfileId.HasValue)
@@ -733,7 +747,15 @@ namespace ShopPOS.Services
                         ServiceTransactionSaveRequest existing = GetTransactionForEdit(connection, transaction, request.ServiceTransactionId.Value);
                         ServiceTypeRecord serviceType = GetServiceTypeById(connection, transaction, request.ServiceTypeId);
                         ValidateTransactionForServiceType(request, serviceType);
-                        ReverseServiceOperationalEffect(connection, transaction, existing, GetServiceTypeById(connection, transaction, existing.ServiceTypeId));
+                        ServiceTypeRecord existingServiceType = GetServiceTypeById(connection, transaction, existing.ServiceTypeId);
+                        if (string.Equals(existing.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                        {
+                            AccountingService.DeleteVouchers(connection, transaction, "service_transaction_header", request.ServiceTransactionId.Value);
+                        }
+                        else
+                        {
+                            ReverseServiceOperationalEffect(connection, transaction, existing, existingServiceType);
+                        }
                         decimal commission = request.ServiceCharge > 0
                             ? request.ServiceCharge
                             : CalculateCommission(serviceType, request.Amount);
@@ -789,7 +811,7 @@ namespace ShopPOS.Services
                             if (IsWithdrawalService(serviceType))
                             {
                                 AdjustWalletBalance(connection, transaction, request.WalletAccountId, request.Amount + commission);
-                                AccountingService.PostWithdrawalServiceEntry(connection, transaction, request.ServiceTransactionId.Value, request.WalletAccountId, request.Amount, commission, request.Remarks, request.UserId);
+                                AccountingService.PostWithdrawalServiceEntry(connection, transaction, request.ServiceTransactionId.Value, request.TransactionDate, request.WalletAccountId, request.Amount, commission, request.Remarks, request.UserId);
                             }
                             else
                             {
@@ -798,12 +820,25 @@ namespace ShopPOS.Services
                                     connection,
                                     transaction,
                                     request.ServiceTransactionId.Value,
+                                    request.TransactionDate,
                                     request.WalletAccountId,
                                     request.Amount,
                                     commission,
                                     request.Remarks,
                                     request.UserId);
                             }
+                        }
+                        else if (!IsWithdrawalService(serviceType) && request.Status == "Pending")
+                        {
+                            AccountingService.PostPendingServiceEntry(
+                                connection,
+                                transaction,
+                                request.ServiceTransactionId.Value,
+                                request.TransactionDate,
+                                request.Amount,
+                                commission,
+                                request.Remarks,
+                                request.UserId);
                         }
 
                         transaction.Commit();
@@ -836,12 +871,20 @@ namespace ShopPOS.Services
                             throw new InvalidOperationException("Only completed withdrawal services can be refunded.");
                         }
 
-                        ReverseServiceOperationalEffect(connection, transaction, existing, existingServiceType);
+                        if (string.Equals(existing.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                        {
+                            AccountingService.DeleteVouchers(connection, transaction, "service_transaction_header", serviceTransactionId);
+                        }
+                        else
+                        {
+                            ReverseServiceOperationalEffect(connection, transaction, existing, existingServiceType);
+                        }
+
                         if (isWithdrawalService)
                         {
                             AccountingService.PostWithdrawalServiceRefundEntry(connection, transaction, serviceTransactionId, existing.WalletAccountId, existing.Amount, existing.ServiceCharge, remarks, userId);
                         }
-                        else
+                        else if (!string.Equals(existing.Status, "Pending", StringComparison.OrdinalIgnoreCase))
                         {
                             AccountingService.PostServiceRefundEntry(
                                 connection,
@@ -958,6 +1001,11 @@ namespace ShopPOS.Services
 
         private static void ValidateTransaction(ServiceTransactionSaveRequest request)
         {
+            if (request.IsExternalTransactionIdNotApplicable)
+            {
+                request.ExternalTransactionId = null;
+            }
+
             if (request.ServiceTypeId <= 0)
             {
                 throw new InvalidOperationException("Select a service type.");
@@ -1001,6 +1049,7 @@ namespace ShopPOS.Services
             }
 
             if (string.Equals(request.Status, "Completed", StringComparison.OrdinalIgnoreCase) &&
+                !request.IsExternalTransactionIdNotApplicable &&
                 string.IsNullOrWhiteSpace(request.ExternalTransactionId))
             {
                 throw new InvalidOperationException("Enter transaction ID for completed service transactions.");
@@ -1037,7 +1086,8 @@ namespace ShopPOS.Services
                 throw new InvalidOperationException("Enter the customer sender account or mobile number for withdrawal services.");
             }
 
-            if (string.IsNullOrWhiteSpace(request.ExternalTransactionId))
+            if (!request.IsExternalTransactionIdNotApplicable &&
+                string.IsNullOrWhiteSpace(request.ExternalTransactionId))
             {
                 throw new InvalidOperationException("Enter the incoming transaction ID for withdrawal services.");
             }
@@ -1330,6 +1380,7 @@ namespace ShopPOS.Services
                     request.PaymentMethod = Convert.ToString(reader["payment_method"]);
                     request.CustomerAccountNumber = Convert.ToString(reader["customer_account_no"]);
                     request.ExternalTransactionId = Convert.ToString(reader["external_transaction_id"]);
+                    request.IsExternalTransactionIdNotApplicable = string.IsNullOrWhiteSpace(request.ExternalTransactionId);
                     request.Amount = Convert.ToDecimal(reader["amount"]);
                     request.ServiceCharge = Convert.ToDecimal(reader["commission_earned"]);
                     request.Status = Convert.ToString(reader["status"]);

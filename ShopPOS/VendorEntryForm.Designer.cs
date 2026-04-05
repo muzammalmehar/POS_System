@@ -36,6 +36,8 @@ namespace ShopPOS
         private System.Windows.Forms.CheckBox chkIsActive;
         private System.Windows.Forms.TextBox txtNotes;
         private System.Windows.Forms.DataGridView dgvVendorProducts;
+        private System.Windows.Forms.Label lblProductSearch;
+        private System.Windows.Forms.TextBox txtProductSearch;
 
         protected override void Dispose(bool disposing)
         {
@@ -81,6 +83,8 @@ namespace ShopPOS
             this.chkIsActive = new System.Windows.Forms.CheckBox();
             this.txtNotes = new System.Windows.Forms.TextBox();
             this.groupProducts = new System.Windows.Forms.GroupBox();
+            this.lblProductSearch = new System.Windows.Forms.Label();
+            this.txtProductSearch = new System.Windows.Forms.TextBox();
             this.dgvVendorProducts = new System.Windows.Forms.DataGridView();
             this.panelHeader.SuspendLayout();
             this.panelFooter.SuspendLayout();
@@ -468,6 +472,8 @@ namespace ShopPOS
             // 
             this.groupProducts.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupProducts.Controls.Add(this.lblProductSearch);
+            this.groupProducts.Controls.Add(this.txtProductSearch);
             this.groupProducts.Controls.Add(this.dgvVendorProducts);
             this.groupProducts.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
             this.groupProducts.Location = new System.Drawing.Point(0, 348);
@@ -477,24 +483,45 @@ namespace ShopPOS
             this.groupProducts.TabStop = false;
             this.groupProducts.Text = "Linked Products";
             // 
+            // lblProductSearch
+            // 
+            this.lblProductSearch.AutoSize = true;
+            this.lblProductSearch.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
+            this.lblProductSearch.Location = new System.Drawing.Point(18, 31);
+            this.lblProductSearch.Name = "lblProductSearch";
+            this.lblProductSearch.Size = new System.Drawing.Size(94, 17);
+            this.lblProductSearch.TabIndex = 0;
+            this.lblProductSearch.Text = "Search Product";
+            // 
+            // txtProductSearch
+            // 
+            this.txtProductSearch.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtProductSearch.Location = new System.Drawing.Point(118, 27);
+            this.txtProductSearch.Name = "txtProductSearch";
+            this.txtProductSearch.Size = new System.Drawing.Size(320, 25);
+            this.txtProductSearch.TabIndex = 1;
+            this.txtProductSearch.TextChanged += new System.EventHandler(this.txtProductSearch_TextChanged);
+            // 
             // dgvVendorProducts
             // 
             this.dgvVendorProducts.AllowUserToAddRows = false;
             this.dgvVendorProducts.AllowUserToDeleteRows = false;
             this.dgvVendorProducts.AutoGenerateColumns = false;
             this.dgvVendorProducts.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvVendorProducts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvVendorProducts.BackgroundColor = System.Drawing.Color.White;
             this.dgvVendorProducts.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgvVendorProducts.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvVendorProducts.EnableHeadersVisualStyles = false;
             this.dgvVendorProducts.GridColor = System.Drawing.Color.Gainsboro;
-            this.dgvVendorProducts.Location = new System.Drawing.Point(3, 21);
+            this.dgvVendorProducts.Location = new System.Drawing.Point(18, 62);
             this.dgvVendorProducts.Name = "dgvVendorProducts";
             this.dgvVendorProducts.RowHeadersVisible = false;
             this.dgvVendorProducts.RowTemplate.Height = 30;
             this.dgvVendorProducts.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvVendorProducts.Size = new System.Drawing.Size(1134, 286);
-            this.dgvVendorProducts.TabIndex = 0;
+            this.dgvVendorProducts.Size = new System.Drawing.Size(1104, 228);
+            this.dgvVendorProducts.TabIndex = 2;
             // 
             // VendorEntryForm
             // 

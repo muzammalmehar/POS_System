@@ -78,6 +78,7 @@ namespace ShopPOS
             this.txtCustomerAccountNo = new System.Windows.Forms.TextBox();
             this.lblTransactionIdTitle = new System.Windows.Forms.Label();
             this.txtTransactionId = new System.Windows.Forms.TextBox();
+            this.chkTransactionIdNotApplicable = new System.Windows.Forms.CheckBox();
             this.billingPanel = new System.Windows.Forms.Panel();
             this.lblBillingPanelTitle = new System.Windows.Forms.Label();
             this.lblRecurrence = new System.Windows.Forms.Label();
@@ -661,6 +662,7 @@ namespace ShopPOS
             this.transactionPanel.Controls.Add(this.txtCustomerAccountNo);
             this.transactionPanel.Controls.Add(this.lblTransactionIdTitle);
             this.transactionPanel.Controls.Add(this.txtTransactionId);
+            this.transactionPanel.Controls.Add(this.chkTransactionIdNotApplicable);
             this.transactionPanel.Location = new System.Drawing.Point(18, 468);
             this.transactionPanel.Name = "transactionPanel";
             this.transactionPanel.Size = new System.Drawing.Size(760, 194);
@@ -853,8 +855,20 @@ namespace ShopPOS
             this.txtTransactionId.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtTransactionId.Location = new System.Drawing.Point(448, 156);
             this.txtTransactionId.Name = "txtTransactionId";
-            this.txtTransactionId.Size = new System.Drawing.Size(278, 25);
+            this.txtTransactionId.Size = new System.Drawing.Size(180, 25);
             this.txtTransactionId.TabIndex = 16;
+            // 
+            // chkTransactionIdNotApplicable
+            // 
+            this.chkTransactionIdNotApplicable.AutoSize = true;
+            this.chkTransactionIdNotApplicable.Font = new System.Drawing.Font("Segoe UI", 9.25F);
+            this.chkTransactionIdNotApplicable.Location = new System.Drawing.Point(448, 108);
+            this.chkTransactionIdNotApplicable.Name = "chkTransactionIdNotApplicable";
+            this.chkTransactionIdNotApplicable.Size = new System.Drawing.Size(114, 21);
+            this.chkTransactionIdNotApplicable.TabIndex = 17;
+            this.chkTransactionIdNotApplicable.Text = "Not Applicable";
+            this.chkTransactionIdNotApplicable.UseVisualStyleBackColor = true;
+            this.chkTransactionIdNotApplicable.CheckedChanged += new System.EventHandler(this.chkTransactionIdNotApplicable_CheckedChanged);
             // 
             // billingPanel
             // 
@@ -1135,6 +1149,7 @@ namespace ShopPOS
         private System.Windows.Forms.TextBox txtCustomerAccountNo;
         private System.Windows.Forms.Label lblTransactionIdTitle;
         private System.Windows.Forms.TextBox txtTransactionId;
+        private System.Windows.Forms.CheckBox chkTransactionIdNotApplicable;
         private System.Windows.Forms.Panel billingPanel;
         private System.Windows.Forms.Label lblBillingPanelTitle;
         private System.Windows.Forms.Label lblRecurrence;
